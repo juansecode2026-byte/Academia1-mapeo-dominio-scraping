@@ -69,3 +69,20 @@ Estados: **Aceptada** · **Rechazada** · **Aplazada** (con condición de activa
 - **Fecha:** 8 oct 2026 · **Estado:** Aplazada
 - **Contexto:** dos veces se repitió el mismo proceso: buscar el archivo en Descargas, compararlo con la documentación, reemplazar el `.html` y generar o actualizar el `.md`.
 - **Revisar si:** el proceso se repite una tercera vez; entonces se evalúa convertirlo en `.claude/commands/traer-documentacion.md`.
+
+## D10 · Dos informes de resultados, primero el manual, guiado
+
+- **Fecha:** 9 oct 2026 · **Estado:** Aceptada
+- **Contexto:** el ejercicio se hace en dos partes, manual y con agentes, sobre el mismo sitio.
+- **Decisión:** dos informes con el mismo esqueleto y las mismas métricas, en `analisis-resultados-scraping-mapeo/` (HTML con diseño y copia `.md`). El manual se hace primero y guiado paso a paso: Claude da el paso y el código, el usuario ejecuta y reporta, y Claude marca el checklist y anota el resultado. Los agentes se hacen después, para ir más rápido.
+- **Motivo:** entender el proceso en detalle antes de automatizarlo, y poder comparar manual contra agentes con las mismas métricas.
+- **Aplazado:** un script de `scripts/` que genere el `.html` desde el `.md`, para no mantener las dos copias a mano. Revisar si mantenerlas sincronizadas se vuelve pesado.
+
+## D11 · Tercera forma: mapeo y scraping con DevTools
+
+- **Fecha:** 9 oct 2026 · **Estado:** Aceptada
+- **Contexto:** al abrir DevTools (F12) sobre la portada se vio que también se puede mapear y leer un sitio con las herramientas del navegador, sin escribir un programa.
+- **Decisión:** el ejercicio pasa a tener **tres formas** sobre el mismo sitio, con las mismas etapas y métricas: manual con código, con DevTools y con agentes. Tercer informe: `analisis-resultados-mapeo-scraping-con-devtools` (HTML y `.md`), guiado igual que el manual. La comparación al final del informe de agentes pasa a tres columnas. Orden: manual, DevTools, agentes. DevTools reutiliza la etapa 1 (permisos) del manual.
+- **Motivo:** DevTools muestra qué ve el código al leer una página y permite comparar una lista de enlaces hecha a mano con la del sitemap. Alcance distinto: una página por vez, no el dominio completo.
+- **Misma muestra y ritmo:** 3 páginas y luego 10, con ritmo tranquilo, aunque una visita con el navegador sea una visita humana; así la comparación es justa y respetuosa.
+- **Actualiza a D10:** donde decía «dos informes», ahora son tres.

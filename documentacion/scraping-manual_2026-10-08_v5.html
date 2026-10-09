@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scraping manual v5 - con ejercicio práctico (8 oct 2026)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>:root{
+  --bg:#EDF1F3; --paper:#FAFBFC; --ink:#13242C; --muted:#51666F; --line:#CBD6DB;
+  --accent:#0E7C7B; --accent-soft:#D8EEEC; --accent-ink:#0A5655;
+  --green:#1D7A4D; --green-soft:#DDF1E6;
+  --amber:#A8570B; --amber-soft:#FDF0DC;
+  --code-bg:#14222B; --code-head:#1C2E39; --code-ink:#DCE8EE; --code-dim:#7F97A4;
+  --font-head:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;
+  --font-body:"IBM Plex Sans","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-mono:"JetBrains Mono","SFMono-Regular",Menlo,Consolas,monospace;
+}
+body[data-theme="agentes"]{ --accent:#5A3FD0; --accent-soft:#E6E0FA; --accent-ink:#3F2A9E; }
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.65}
+a{color:var(--accent-ink)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+.shell{max-width:1180px;margin:0 auto;padding:0 24px 96px;display:grid;grid-template-columns:250px minmax(0,1fr);gap:56px}
+.toc{position:sticky;top:24px;align-self:start;padding-top:56px;font-size:14.5px;max-height:100vh;overflow:auto}
+.toc summary{list-style:none;cursor:pointer;font-family:var(--font-head);font-weight:700;font-size:16px;margin-bottom:10px}
+.toc summary::-webkit-details-marker{display:none}
+.toc ol{list-style:none;margin:0;padding:0;border-left:2px solid var(--line)}
+.toc a{display:block;padding:5px 0 5px 14px;margin-left:-2px;border-left:2px solid transparent;color:var(--muted);text-decoration:none}
+.toc a:hover{color:var(--ink)}
+.toc a.on{color:var(--accent-ink);border-left-color:var(--accent);font-weight:600}
+.toc .other{margin-top:20px;padding:12px 14px;background:var(--paper);border:1px solid var(--line);border-radius:10px;font-size:14px;line-height:1.45}
+
+main{min-width:0}
+.hero{padding:56px 0 8px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.pill{font-size:14px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
+.pill.strong{background:var(--accent);border-color:var(--accent);color:#fff}
+h1{font-family:var(--font-head);font-weight:800;font-size:clamp(44px,7.2vw,84px);line-height:.96;letter-spacing:-.035em;margin:0 0 22px}
+.lede{font-size:clamp(18px,2.2vw,21px);max-width:62ch;color:#2B404A;margin:0 0 36px}
+
+.split{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0 0 24px}
+.panel{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:var(--paper);display:flex;flex-direction:column}
+.panel h3{margin:0;padding:10px 16px;font-size:14px;font-weight:600;background:#E3EAED;border-bottom:1px solid var(--line)}
+.panel.dark{background:var(--code-bg);border-color:var(--code-bg)}
+.panel.dark h3{background:var(--code-head);color:var(--code-dim);border-bottom-color:#2A3F4C}
+.panel pre{margin:0;padding:14px 16px;font-family:var(--font-mono);font-size:12.5px;line-height:1.6;color:var(--code-ink);overflow-x:auto;white-space:pre}
+.panel .clean{padding:14px 18px;font-size:15.5px;line-height:1.6}
+.panel .clean b{font-family:var(--font-head);font-size:19px;display:block;margin-bottom:6px}
+.noise{color:#E5A07A}
+.keep{color:#8FE0B5}
+
+section{scroll-margin-top:20px}
+section.block{border-top:1px solid var(--line);margin-top:56px;padding-top:40px}
+h2{font-family:var(--font-head);font-weight:700;font-size:clamp(27px,3.6vw,38px);line-height:1.1;letter-spacing:-.02em;margin:0 0 16px}
+h3.sub{font-family:var(--font-head);font-size:21px;margin:30px 0 8px}
+p{margin:0 0 16px;max-width:70ch}
+ul,ol.plain{max-width:70ch;padding-left:22px;margin:0 0 18px}
+li{margin-bottom:6px}
+.n{display:inline-grid;place-items:center;width:1.35em;height:1.35em;margin-right:.35em;border-radius:50%;background:var(--accent);color:#fff;font-size:.7em;vertical-align:.12em;font-weight:700}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--accent-soft);color:var(--accent-ink);padding:1px 6px;border-radius:5px}
+
+.note{max-width:70ch;margin:18px 0;padding:14px 18px;border-radius:10px;border-left:4px solid var(--accent);background:var(--accent-soft);font-size:16px}
+.note p{margin:0 0 8px;max-width:none}.note p:last-child{margin:0}
+.note > b:first-child{display:block;margin-bottom:4px;font-family:var(--font-head);font-size:17px}
+.note.gets{border-left-color:var(--green);background:var(--green-soft)}
+.note.warn{border-left-color:var(--amber);background:var(--amber-soft)}
+.note ul{margin-bottom:0}
+
+.code{margin:18px 0 24px;border-radius:12px;overflow:hidden;background:var(--code-bg);color:var(--code-ink)}
+.code-head{display:flex;justify-content:space-between;align-items:center;padding:8px 8px 8px 16px;background:var(--code-head);font-family:var(--font-mono);font-size:12.5px;color:var(--code-dim)}
+.code-head button{font:inherit;font-family:var(--font-body);font-size:13px;color:var(--code-ink);background:transparent;border:1px solid #3A5262;border-radius:7px;padding:4px 12px;cursor:pointer}
+.code-head button:hover{background:#274050}
+.code pre{margin:0;padding:16px 18px;overflow-x:auto;font-family:var(--font-mono);font-size:13.5px;line-height:1.65;tab-size:4}
+.code .c{color:#7FA0B2}
+
+.tablewrap{overflow-x:auto;margin:18px 0 24px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
+th,td{text-align:left;padding:11px 16px;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:#E3EAED;font-family:var(--font-head);font-size:15px}
+tr:last-child td{border-bottom:0}
+
+.flow{list-style:none;margin:20px 0 28px;padding:0;display:flex;flex-wrap:wrap;gap:10px 8px;max-width:none}
+.flow li{margin:0;flex:1 1 150px;position:relative;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 14px;font-size:14.5px;line-height:1.4}
+.flow li b{display:block;font-family:var(--font-head);font-size:16px;margin-bottom:3px;color:var(--accent-ink)}
+.flow li .t{display:inline-block;margin-top:6px;font-size:12.5px;padding:1px 8px;border-radius:999px;background:var(--accent-soft);color:var(--accent-ink)}
+.flow li .t.ia{background:var(--accent);color:#fff}
+
+.checks{list-style:none;padding:0}
+.checks li{padding-left:30px;position:relative}
+.checks li::before{content:"";position:absolute;left:0;top:.35em;width:17px;height:17px;border:2px solid var(--accent);border-radius:5px}
+
+footer{margin-top:64px;padding-top:24px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+
+@media (max-width:900px){
+  .shell{grid-template-columns:1fr;gap:0;padding:0 18px 72px}
+  .toc{position:static;padding-top:20px;max-height:none}
+  .toc details{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+  .hero{padding-top:28px}
+  .split{grid-template-columns:1fr}
+  body{font-size:16.5px}
+}
+
+/* ---- Ejercicio práctico ---- */
+.toc li.sub a{padding-left:28px;font-size:13.5px}
+.ej-head{margin-top:96px;padding-top:40px;border-top:6px solid var(--accent)}
+.ej-title{font-family:var(--font-head);font-weight:800;font-size:clamp(40px,6.4vw,72px);line-height:.98;letter-spacing:-.03em;margin:0 0 18px}
+.anatomy{display:flex;flex-wrap:wrap;font-family:var(--font-mono);font-size:clamp(13px,2.4vw,18px);margin:14px 0 6px;background:var(--code-bg);border-radius:12px;padding:18px 20px;color:var(--code-ink);overflow-x:auto}
+.anatomy span{padding-bottom:6px;border-bottom:3px solid}
+.anatomy .a1{border-color:#E5A07A}.anatomy .a2{border-color:#8FE0B5}.anatomy .a3{border-color:#8FB8F0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:14.5px;color:var(--muted);margin:0 0 18px}
+.fill td{height:46px;background:#fff}
+.fill td:first-child{background:var(--paper);font-weight:600;width:34%}
+.fill td.ok{background:var(--green-soft)}
+.paste{max-width:70ch;margin:18px 0 24px;border:2px dashed var(--line);border-radius:12px;padding:18px 20px;background:var(--paper);color:var(--muted);font-size:15.5px}
+.paste b{display:block;color:var(--ink);font-family:var(--font-head);font-size:17px;margin-bottom:4px}
+
+.flow li .t.done{background:var(--green-soft);color:var(--green)}
+.flow li .t.wait{background:#E3EAED;color:var(--muted)}
+.flow li.now{border:2px solid var(--accent)}
+</style>
+</head>
+<body data-theme="manual">
+<div class="shell">
+
+<nav class="toc" aria-label="Contenido">
+  <details>
+    <summary>Contenido</summary>
+    <ol>
+      <li><a href="#idea">La idea general</a></li>
+      <li><a href="#que-obtienes">Qué información obtienes</a></li>
+      <li><a href="#reglas">Antes de empezar</a></li>
+      <li><a href="#herramientas">Herramientas</a></li>
+      <li><a href="#paso1">Paso 1. Revisar robots.txt</a></li>
+      <li><a href="#paso2">Paso 2. Descargar el HTML</a></li>
+      <li><a href="#paso3">Paso 3. Leer la estructura</a></li>
+      <li><a href="#paso4">Paso 4. Extraer el texto</a></li>
+      <li><a href="#paso5">Paso 5. Mapear el dominio</a></li>
+      <li><a href="#paso6">Paso 6. Guardar los datos</a></li>
+      <li><a href="#paso7">Paso 7. Reescribir y citar</a></li>
+      <li><a href="#main">Unir todo en un script</a></li>
+      <li><a href="#fallas">Cuando algo falla</a></li>
+      <li><a href="#cierre">Checklist y siguiente paso</a></li>
+      <li><a href="#ej">Ejercicio: Scraping manual</a></li>
+      <li class="sub"><a href="#ej-ruta">La ruta del ejercicio</a></li>
+      <li class="sub"><a href="#ej-paso1">Abrir el robots.txt</a></li>
+      <li class="sub"><a href="#ej-error">Si hay un error</a></li>
+      <li class="sub"><a href="#ej-paso2">Los 4 tipos de líneas</a></li>
+      <li class="sub"><a href="#ej-ua">User-agent y bots</a></li>
+      <li class="sub"><a href="#ej-lectura">Leer el robots.txt</a></li>
+      <li class="sub"><a href="#ej-codigo">Cómo lo lee el código</a></li>
+      <li class="sub"><a href="#ej-uso">Qué obtienes y a dónde lleva</a></li>
+      <li class="sub"><a href="#ej-siguiente">Siguiente: sitemap</a></li>
+      <li class="sub"><a href="#ej-registro">Registro</a></li>
+      <li class="sub"><a href="#ej-versiones">Versiones</a></li>
+    </ol>
+    <div class="other">Siguiente: <a href="scraping-con-agentes_2026-10-08.html">Guía 2, scraping con agentes</a></div>
+  </details>
+</nav>
+
+<main>
+
+<header class="hero">
+  <div class="pills">
+    <span class="pill strong">Guía 1 de 2</span>
+    <span class="pill">8 de octubre de 2026</span>
+    <span class="pill">Python</span>
+    <span class="pill">Nivel: principiante</span>
+    <span class="pill">v5 con ejercicio</span>
+  </div>
+  <h1>Scraping manual</h1>
+  <p class="lede">Vas a descargar una página web, quedarte solo con el texto del artículo (sin menús ni publicidad) y guardarlo ordenado. Escribes cada paso tú mismo para entender qué pasa por dentro. En la guía 2 le entregas ese trabajo a agentes de IA.</p>
+
+  <div class="split" aria-label="Antes y después del scraping">
+    <div class="panel dark">
+      <h3>Lo que descarga tu código (HTML crudo)</h3>
+<pre><span class="noise">&lt;nav&gt;Inicio | Blog | Contacto&lt;/nav&gt;
+&lt;div class="ad"&gt;¡Suscríbete ya!&lt;/div&gt;</span>
+<span class="keep">&lt;article&gt;
+  &lt;h1&gt;Cómo la IA reduce costos&lt;/h1&gt;
+  &lt;p&gt;Las empresas que automatizan...&lt;/p&gt;
+&lt;/article&gt;</span>
+<span class="noise">&lt;footer&gt;© 2026 · Cookies&lt;/footer&gt;</span></pre>
+    </div>
+    <div class="panel">
+      <h3>Lo que te queda (texto limpio)</h3>
+      <div class="clean">
+        <b>Cómo la IA reduce costos</b>
+        Las empresas que automatizan...
+      </div>
+    </div>
+  </div>
+</header>
+
+<section class="block" id="idea">
+  <h2>La idea general</h2>
+  <p>Hacer scraping es automatizar lo que haría una persona: abrir una página, leerla y copiar lo importante. La diferencia es que tu programa lo hace en segundos y para cientos de páginas. El proceso siempre sigue la misma cadena:</p>
+  <ol class="flow">
+    <li><b>Permiso</b>Revisas robots.txt y los términos del sitio.<span class="t">código</span></li>
+    <li><b>Descarga</b>Pides la página y recibes HTML.<span class="t">código</span></li>
+    <li><b>Estructura</b>Entiendes cómo está armado ese HTML.<span class="t">tú</span></li>
+    <li><b>Extracción</b>Separas el artículo del ruido.<span class="t">código</span></li>
+    <li><b>Mapa</b>Descubres qué otras páginas existen.<span class="t">código</span></li>
+    <li><b>Guardado</b>Almacenas título, fecha, texto y fuente.<span class="t">código</span></li>
+    <li><b>Reescritura</b>Escribes con tus palabras y citas.<span class="t">tú</span></li>
+  </ol>
+  <div class="note why">
+    <b>Por qué empezar manual</b>
+    <p>Cuando un agente falle (y va a fallar a veces), necesitas saber en qué eslabón de la cadena está el problema. Quien entendió el proceso a mano depura en minutos; quien solo usó la herramienta queda a ciegas. Además, lo que aprendes aquí es lo que después conviertes en las herramientas del agente.</p>
+  </div>
+</section>
+
+<section class="block" id="que-obtienes">
+  <h2>Qué información puedes obtener</h2>
+  <p>De una sola página de artículo salen estos datos. Algunos vienen de la etiqueta del HTML, otros de los metadatos que el sitio publica para Google y redes sociales.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Dato</th><th>De dónde sale</th><th>Para qué te sirve</th></tr></thead>
+    <tbody>
+      <tr><td>Título</td><td><code>&lt;h1&gt;</code> o <code>og:title</code></td><td>Identificar y citar la fuente</td></tr>
+      <tr><td>Texto del artículo</td><td><code>&lt;article&gt;</code>, <code>&lt;p&gt;</code></td><td>Materia prima para resumir y analizar</td></tr>
+      <tr><td>Autor</td><td>Metadatos o firma del artículo</td><td>Citar correctamente</td></tr>
+      <tr><td>Fecha de publicación</td><td><code>article:published_time</code></td><td>Saber si la información está vigente</td></tr>
+      <tr><td>Descripción</td><td><code>meta description</code></td><td>Resumen rápido para decidir si vale la pena</td></tr>
+      <tr><td>Enlaces internos</td><td><code>&lt;a href&gt;</code></td><td>Descubrir más páginas del dominio</td></tr>
+      <tr><td>Lista de URLs del sitio</td><td><code>sitemap.xml</code></td><td>Mapear todo el dominio sin recorrerlo a ciegas</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="block" id="reglas">
+  <h2>Antes de empezar: reglas del juego</h2>
+  <p>El scraping es legal en muchos contextos, pero no todo vale. Estas cinco reglas te mantienen del lado correcto y evitan que te bloqueen.</p>
+  <ul>
+    <li><b>Lee robots.txt.</b> Es el archivo donde el sitio dice qué partes no quiere que automatices (<code>sitio.com/robots.txt</code>). Si una ruta está prohibida, no la visitas.</li>
+    <li><b>Lee los términos de uso.</b> Algunos sitios prohíben el scraping aunque robots.txt no lo diga. Si lo prohíben, busca una API oficial o pide permiso.</li>
+    <li><b>Nada detrás de login o paywall.</b> Si hay que iniciar sesión o pagar para verlo, no lo extraes.</li>
+    <li><b>Ve despacio.</b> Espera 2 a 3 segundos entre páginas. Un servidor pequeño puede caerse con ráfagas de peticiones.</li>
+    <li><b>Reescribe y cita.</b> Usa la información como insumo. Escríbela con tus palabras y nombra la fuente con su enlace. No copies el texto.</li>
+  </ul>
+  <div class="note warn">
+    <b>Para practicar sin riesgo</b>
+    <p>Existen sitios hechos para aprender scraping: <code>quotes.toscrape.com</code> y <code>books.toscrape.com</code>. Haz todos los ejercicios de esta guía ahí primero y luego pasas a sitios reales.</p>
+  </div>
+</section>
+
+<section class="block" id="herramientas">
+  <h2>Herramientas que necesitas</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Herramienta</th><th>Qué hace</th><th>Analogía</th></tr></thead>
+    <tbody>
+      <tr><td>Python 3.10 o superior</td><td>El lenguaje donde escribes todo</td><td>La cocina</td></tr>
+      <tr><td><code>requests</code></td><td>Descarga páginas por HTTP</td><td>El mensajero que trae el paquete</td></tr>
+      <tr><td><code>beautifulsoup4</code> + <code>lxml</code></td><td>Lee el HTML y te deja buscar etiquetas</td><td>Abrir el paquete y mirar lo que hay</td></tr>
+      <tr><td><code>trafilatura</code></td><td>Deja solo el texto principal del artículo</td><td>Quedarte con la carne y tirar el empaque</td></tr>
+      <tr><td>DevTools del navegador (F12)</td><td>Te muestra el HTML de cualquier página</td><td>Rayos X de la página</td></tr>
+      <tr><td><code>playwright</code> (opcional)</td><td>Abre un navegador real para páginas que cargan con JavaScript</td><td>Un robot que usa Chrome por ti</td></tr>
+      <tr><td>VS Code</td><td>Editor donde escribes y corres el código</td><td>La mesa de trabajo</td></tr>
+    </tbody>
+  </table></div>
+  <h3 class="sub">Preparar el proyecto</h3>
+  <p>Crea una carpeta y un entorno virtual (una "burbuja" para que las librerías de este proyecto no se mezclen con las de otros):</p>
+<div class="code"><div class="code-head"><span>terminal</span><button type="button">Copiar</button></div><pre><code>mkdir scraping-manual &amp;&amp; cd scraping-manual
+python3 -m venv .venv
+source .venv/bin/activate        <span class="c"># En Windows: .venv\Scripts\activate</span>
+pip install requests beautifulsoup4 lxml trafilatura</code></pre></div>
+  <p>Crea un archivo vacío llamado <code>scraper.py</code>. En los siguientes pasos le vas agregando funciones, una por cada eslabón de la cadena.</p>
+</section>
+
+<section class="block" id="paso1">
+  <h2><span class="n">1</span>Revisar robots.txt desde el código</h2>
+  <p>Python trae una herramienta que lee robots.txt y te responde sí o no para cada URL.</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 1)</span><button type="button">Copiar</button></div><pre><code>from functools import lru_cache
+from urllib.parse import urlparse
+from urllib.robotparser import RobotFileParser
+
+<span class="c"># Identifícate con honestidad: nombre del bot y un correo de contacto.</span>
+USER_AGENT = "MiBotInvestigacion/1.0 (contacto: tu-correo@dominio.com)"
+
+@lru_cache(maxsize=None)
+def _robots(base: str) -&gt; RobotFileParser:
+    rp = RobotFileParser()
+    rp.set_url(f"{base}/robots.txt")
+    rp.read()
+    return rp
+
+def puede_visitar(url: str) -&gt; bool:
+    p = urlparse(url)
+    return _robots(f"{p.scheme}://{p.netloc}").can_fetch(USER_AGENT, url)
+
+<span class="c"># Prueba rápida</span>
+if __name__ == "__main__":
+    print(puede_visitar("https://quotes.toscrape.com/"))</code></pre></div>
+  <div class="note why">
+    <b>Por qué lo hacemos así</b>
+    <p>Así el permiso queda dentro del código y no depende de que te acuerdes de revisarlo. <code>lru_cache</code> evita volver a descargar robots.txt en cada página del mismo sitio.</p>
+  </div>
+  <div class="note gets">
+    <b>Qué obtienes</b>
+    <p><code>True</code> si puedes visitar esa URL y <code>False</code> si el sitio lo prohíbe. Si da <code>False</code>, te detienes.</p>
+  </div>
+</section>
+
+<section class="block" id="paso2">
+  <h2><span class="n">2</span>Descargar el HTML</h2>
+  <p>Ahora pides la página. Tu código se presenta con un <code>User-Agent</code>, espera un poco antes de pedir y maneja los errores comunes.</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 2)</span><button type="button">Copiar</button></div><pre><code>import time
+import requests
+
+HEADERS = {
+    "User-Agent": USER_AGENT,
+    "Accept-Language": "es-CO,es;q=0.9,en;q=0.5",
+}
+
+def descargar(url: str, espera: float = 2.0, solo_html: bool = True) -&gt; str | None:
+    """Devuelve el contenido de la URL como texto, o None si algo falla."""
+    time.sleep(espera)                      <span class="c"># buena educación: no saturar el servidor</span>
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=20)
+        r.raise_for_status()                <span class="c"># lanza error si el código es 4xx o 5xx</span>
+    except requests.RequestException as e:
+        print(f"No se pudo descargar {url}: {e}")
+        return None
+    if solo_html and "text/html" not in r.headers.get("Content-Type", ""):
+        return None                         <span class="c"># ignora PDFs, imágenes, etc.</span>
+    if r.encoding in (None, "ISO-8859-1"):
+        r.encoding = r.apparent_encoding    <span class="c"># arregla tildes y eñes mal leídas</span>
+    return r.text</code></pre></div>
+  <div class="note gets">
+    <b>Qué obtienes</b>
+    <p>Un texto largo con todo el HTML de la página. Es el "paquete cerrado": todavía contiene menús, scripts, publicidad y pie de página mezclados con el artículo.</p>
+  </div>
+</section>
+
+<section class="block" id="paso3">
+  <h2><span class="n">3</span>Leer la estructura del HTML</h2>
+  <p>Antes de extraer nada, mira cómo está armada la página. En tu navegador abre un artículo, haz clic derecho sobre el título y elige <b>Inspeccionar</b>. Verás algo así:</p>
+<div class="code"><div class="code-head"><span>HTML de ejemplo</span><button type="button">Copiar</button></div><pre><code>&lt;html&gt;
+  &lt;head&gt;
+    &lt;title&gt;Cómo la IA reduce costos | Sitio&lt;/title&gt;
+    &lt;meta name="description" content="Resumen del artículo"&gt;
+    &lt;meta property="article:published_time" content="2026-09-30"&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;nav&gt;...&lt;/nav&gt;
+    &lt;article&gt;
+      &lt;h1&gt;Cómo la IA reduce costos&lt;/h1&gt;
+      &lt;p class="autor"&gt;Por Ana Pérez&lt;/p&gt;
+      &lt;p&gt;Las empresas que automatizan...&lt;/p&gt;
+    &lt;/article&gt;
+    &lt;footer&gt;...&lt;/footer&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre></div>
+  <p>La lógica: el HTML es un árbol de etiquetas. El artículo casi siempre vive dentro de <code>&lt;article&gt;</code> o de un contenedor con una clase reconocible. Con BeautifulSoup le dices "dame todos los <code>&lt;p&gt;</code> que estén dentro de <code>&lt;article&gt;</code>".</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 3)</span><button type="button">Copiar</button></div><pre><code>from bs4 import BeautifulSoup
+
+def leer_metadatos(html: str) -&gt; dict:
+    soup = BeautifulSoup(html, "lxml")
+
+    def meta(**attrs):
+        tag = soup.find("meta", attrs=attrs)
+        return tag["content"].strip() if tag and tag.get("content") else None
+
+    h1 = soup.find("h1")
+    return {
+        "titulo": h1.get_text(strip=True) if h1 else (soup.title.string.strip() if soup.title else None),
+        "descripcion": meta(name="description"),
+        "fecha": meta(property="article:published_time"),
+        "autor": meta(name="author"),
+        "parrafos": [p.get_text(" ", strip=True) for p in soup.select("article p")],
+        "enlaces": [a["href"] for a in soup.find_all("a", href=True)],
+    }</code></pre></div>
+  <div class="note why">
+    <b>Por qué este método tiene límite</b>
+    <p>Los selectores como <code>article p</code> funcionan en un sitio, pero cada sitio arma su HTML distinto. Si tienes que escribir uno por cada página que visites, no escala. Por eso el paso 4 usa una librería que adivina dónde está el texto principal.</p>
+  </div>
+</section>
+
+<section class="block" id="paso4">
+  <h2><span class="n">4</span>Extraer solo el texto del artículo</h2>
+  <p><code>trafilatura</code> analiza la página y descarta menús, publicidad, comentarios y pie de página. Además intenta rescatar título, autor y fecha.</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 4)</span><button type="button">Copiar</button></div><pre><code>import json
+import trafilatura
+
+def extraer_articulo(html: str, url: str) -&gt; dict | None:
+    resultado = trafilatura.extract(
+        html,
+        url=url,
+        output_format="json",
+        with_metadata=True,
+        include_comments=False,
+        include_tables=False,
+        favor_precision=True,     <span class="c"># prefiere perder algo de texto antes que traer ruido</span>
+    )
+    if not resultado:
+        return None               <span class="c"># la página no parece un artículo</span>
+    d = json.loads(resultado)
+    return {
+        "url": url,
+        "titulo": d.get("title"),
+        "autor": d.get("author"),
+        "fecha_publicacion": d.get("date"),
+        "sitio": d.get("hostname"),
+        "descripcion": d.get("description"),
+        "texto": d.get("text"),
+    }</code></pre></div>
+  <div class="note gets">
+    <b>Qué obtienes</b>
+    <p>Un diccionario con el texto limpio, listo para leer o para entregárselo a un modelo de IA. Ejemplo de resultado:</p>
+  </div>
+<div class="code"><div class="code-head"><span>resultado de ejemplo</span><button type="button">Copiar</button></div><pre><code>{
+  "url": "https://sitio-ejemplo.com/blog/ia-reduce-costos",
+  "titulo": "Cómo la IA reduce costos",
+  "autor": "Ana Pérez",
+  "fecha_publicacion": "2026-09-30",
+  "sitio": "sitio-ejemplo.com",
+  "texto": "Las empresas que automatizan sus procesos..."
+}</code></pre></div>
+</section>
+
+<section class="block" id="paso5">
+  <h2><span class="n">5</span>Mapear el dominio: descubrir qué páginas existen</h2>
+  <p>Hasta ahora trabajaste con una URL que ya conocías. Para un sitio completo necesitas una lista de páginas. Hay dos formas, y son justo lo que herramientas como Firecrawl llaman <b>map</b> y <b>crawl</b>.</p>
+  <h3 class="sub">Forma A. Leer el sitemap.xml (rápida y limpia)</h3>
+  <p>Muchos sitios publican un archivo con todas sus URLs, normalmente en <code>sitio.com/sitemap.xml</code>. También suele estar mencionado dentro de robots.txt.</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 5A)</span><button type="button">Copiar</button></div><pre><code>import xml.etree.ElementTree as ET
+
+NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+
+def urls_desde_sitemap(sitemap_url: str, limite: int = 500) -&gt; list[str]:
+    contenido = descargar(sitemap_url, solo_html=False)
+    if not contenido:
+        return []
+    raiz = ET.fromstring(contenido.encode("utf-8"))
+    urls: list[str] = []
+    <span class="c"># Un sitemap puede ser un índice que apunta a otros sitemaps</span>
+    for loc in raiz.findall(".//sm:sitemap/sm:loc", NS):
+        urls += urls_desde_sitemap(loc.text.strip(), limite)
+        if len(urls) &gt;= limite:
+            break
+    for loc in raiz.findall(".//sm:url/sm:loc", NS):
+        urls.append(loc.text.strip())
+    return urls[:limite]</code></pre></div>
+  <h3 class="sub">Forma B. Seguir los enlaces (crawl propio)</h3>
+  <p>Si no hay sitemap, empiezas en la portada y sigues los enlaces internos, como haría una persona. Siempre con un tope de páginas.</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 5B)</span><button type="button">Copiar</button></div><pre><code>from collections import deque
+from urllib.parse import urljoin, urldefrag
+
+def rastrear(inicio: str, max_paginas: int = 30) -&gt; list[str]:
+    dominio = urlparse(inicio).netloc
+    pendientes, vistas, encontradas = deque([inicio]), set(), []
+    while pendientes and len(vistas) &lt; max_paginas:
+        url = pendientes.popleft()
+        if url in vistas or not puede_visitar(url):
+            continue
+        vistas.add(url)
+        html = descargar(url)
+        if not html:
+            continue
+        encontradas.append(url)
+        soup = BeautifulSoup(html, "lxml")
+        for a in soup.find_all("a", href=True):
+            enlace = urldefrag(urljoin(url, a["href"]))[0]   <span class="c"># quita el #ancla</span>
+            if urlparse(enlace).netloc == dominio and enlace not in vistas:
+                pendientes.append(enlace)
+    return encontradas</code></pre></div>
+  <h3 class="sub">Decidir cuáles páginas valen la pena</h3>
+  <p>Un sitio tiene páginas de contacto, políticas, etiquetas y categorías que no te sirven. En modo manual filtras con reglas que tú escribes:</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 5C)</span><button type="button">Copiar</button></div><pre><code>PATRONES_UTILES = ("/blog/", "/noticias/", "/articulo/")
+PATRONES_RUIDO = ("/tag/", "/categoria/", "/autor/", "/contacto", "/politica")
+
+def vale_la_pena(url: str) -&gt; bool:
+    if any(p in url for p in PATRONES_RUIDO):
+        return False
+    return any(p in url for p in PATRONES_UTILES)</code></pre></div>
+  <div class="note why">
+    <b>Por qué esto es el punto débil del modo manual</b>
+    <p>Las reglas son rígidas: solo ven la forma de la URL, no el contenido. Una página llamada <code>/blog/novedades-2026</code> puede ser pura propaganda y otra en <code>/recursos/</code> puede ser justo lo que buscas. Un agente de IA puede leer el título y decidir con criterio. Eso lo construimos en la guía 2.</p>
+  </div>
+</section>
+
+<section class="block" id="paso6">
+  <h2><span class="n">6</span>Guardar los datos</h2>
+  <p>Guarda cada artículo con sus metadatos y la fecha en que lo consultaste. JSON conserva todo el texto; CSV te sirve para abrirlo en Excel.</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 6)</span><button type="button">Copiar</button></div><pre><code>import csv
+from datetime import date
+
+def guardar(fichas: list[dict], ruta_base: str = "resultados") -&gt; None:
+    hoy = date.today().isoformat()
+    for f in fichas:
+        f.setdefault("fecha_consulta", hoy)
+    with open(f"{ruta_base}.json", "w", encoding="utf-8") as fh:
+        json.dump(fichas, fh, ensure_ascii=False, indent=2)
+    columnas = ["url", "titulo", "autor", "fecha_publicacion", "sitio", "fecha_consulta", "cita"]
+    with open(f"{ruta_base}.csv", "w", encoding="utf-8-sig", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=columnas, extrasaction="ignore")
+        w.writeheader()
+        w.writerows(fichas)</code></pre></div>
+  <div class="note gets">
+    <b>Qué obtienes</b>
+    <p>Dos archivos: <code>resultados.json</code> con el texto completo y <code>resultados.csv</code> con un índice para revisar rápido. Usamos <code>utf-8-sig</code> para que Excel muestre bien las tildes.</p>
+  </div>
+</section>
+
+<section class="block" id="paso7">
+  <h2><span class="n">7</span>Reescribir con tus palabras y citar</h2>
+  <p>Este paso no lo hace el código: lo haces tú. El texto que descargaste es insumo de trabajo, no el producto final. Lo que publiques o entregues a un cliente debe ser tu análisis, escrito con tus palabras, con la fuente claramente indicada.</p>
+  <div class="split" style="grid-template-columns:1fr 1fr">
+    <div class="panel">
+      <h3>No hacer</h3>
+      <div class="clean" style="font-size:15px">Copiar párrafos del artículo, cambiar dos palabras y publicarlos sin mencionar de dónde salieron.</div>
+    </div>
+    <div class="panel">
+      <h3>Hacer</h3>
+      <div class="clean" style="font-size:15px">Entender la idea, explicarla con tu estructura y tu lenguaje, y cerrar con la referencia a la fuente.</div>
+    </div>
+  </div>
+  <p>Una ficha de cita sencilla, que puedes generar con el código usando los datos que ya guardaste:</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte 7)</span><button type="button">Copiar</button></div><pre><code>def referencia(f: dict) -&gt; str:
+    autor = f.get("autor") or "Autor no indicado"
+    fecha = f.get("fecha_publicacion") or "s. f."
+    return f'{autor}. "{f["titulo"]}". {f["sitio"]}, {fecha}. {f["url"]} (consultado el {f["fecha_consulta"]})'</code></pre></div>
+  <p>Resultado: <code>Ana Pérez. "Cómo la IA reduce costos". sitio-ejemplo.com, 2026-09-30. https://sitio-ejemplo.com/blog/ia-reduce-costos (consultado el 2026-10-08)</code></p>
+</section>
+
+<section class="block" id="main">
+  <h2>Unir todo en un script</h2>
+  <p>Con las funciones anteriores en <code>scraper.py</code>, agrega esta función al final. Recorre el sitio, filtra, descarga, extrae y guarda.</p>
+<div class="code"><div class="code-head"><span>scraper.py (parte final)</span><button type="button">Copiar</button></div><pre><code>def main(sitio: str = "https://quotes.toscrape.com/", max_articulos: int = 10) -&gt; None:
+    <span class="c"># 1. Mapa: primero sitemap, y si no hay, rastreo por enlaces</span>
+    urls = urls_desde_sitemap(f"{sitio.rstrip('/')}/sitemap.xml") or rastrear(sitio, max_paginas=30)
+    <span class="c"># 2. Filtro de páginas útiles (en el sitio de práctica no hay /blog/, así que tomamos todas)</span>
+    candidatas = [u for u in urls if vale_la_pena(u)] or urls
+    fichas = []
+    for url in candidatas[:max_articulos]:
+        if not puede_visitar(url):
+            continue
+        html = descargar(url)
+        if not html:
+            continue
+        ficha = extraer_articulo(html, url)
+        if ficha and ficha["texto"]:
+            ficha["fecha_consulta"] = date.today().isoformat()
+            ficha["cita"] = referencia(ficha)       <span class="c"># paso 7</span>
+            fichas.append(ficha)
+            print("OK:", ficha["titulo"])
+    guardar(fichas)
+    print(f"Listo: {len(fichas)} páginas guardadas en resultados.json y resultados.csv")
+
+if __name__ == "__main__":
+    main()</code></pre></div>
+  <p>Ejecútalo con <code>python scraper.py</code>. Elimina el bloque de prueba <code>if __name__ == "__main__": print(puede_visitar(...))</code> de la parte 1 para que no se ejecute dos veces.</p>
+</section>
+
+<section class="block" id="fallas">
+  <h2>Cuando algo falla</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Síntoma</th><th>Causa probable</th><th>Qué hacer</th></tr></thead>
+    <tbody>
+      <tr><td>Error 403 o 429</td><td>El sitio detectó demasiadas peticiones o rechaza bots</td><td>Aumenta la espera. No intentes esquivar el bloqueo: si el sitio no quiere bots, respeta eso.</td></tr>
+      <tr><td>El texto sale vacío</td><td>La página se arma con JavaScript en el navegador</td><td>Usa Playwright para renderizarla antes de extraer.</td></tr>
+      <tr><td>Tildes y eñes raras</td><td>Codificación mal detectada</td><td>El código del paso 2 ya la corrige; verifica con <code>r.apparent_encoding</code>.</td></tr>
+      <tr><td>Trae menús mezclados</td><td>La página tiene una estructura rara</td><td>Prueba <code>favor_precision=True</code> o usa un selector CSS propio.</td></tr>
+      <tr><td>Funcionaba y dejó de funcionar</td><td>El sitio cambió su HTML</td><td>Revisa los selectores. Este es el dolor que los agentes ayudan a reducir.</td></tr>
+      <tr><td>Pide login o suscripción</td><td>Contenido de pago o privado</td><td>Detente. No se extrae.</td></tr>
+    </tbody>
+  </table></div>
+  <h3 class="sub">Páginas que cargan con JavaScript</h3>
+<div class="code"><div class="code-head"><span>terminal</span><button type="button">Copiar</button></div><pre><code>pip install playwright
+playwright install chromium</code></pre></div>
+<div class="code"><div class="code-head"><span>renderizar.py</span><button type="button">Copiar</button></div><pre><code>from playwright.sync_api import sync_playwright
+
+def descargar_renderizado(url: str) -&gt; str:
+    with sync_playwright() as p:
+        navegador = p.chromium.launch()
+        pagina = navegador.new_page()
+        pagina.goto(url, wait_until="networkidle")
+        html = pagina.content()
+        navegador.close()
+    return html</code></pre></div>
+  <p>El HTML que devuelve se usa igual que el del paso 2: se lo pasas a <code>extraer_articulo</code>.</p>
+</section>
+
+<section class="block" id="cierre">
+  <h2>Checklist y siguiente paso</h2>
+  <ul class="checks">
+    <li>Corriste el script en un sitio de práctica y revisaste <code>resultados.json</code>.</li>
+    <li>Entiendes por qué cada eslabón existe: permiso, descarga, estructura, extracción, mapa, guardado.</li>
+    <li>Probaste a mano el sitemap y el crawl con límite de páginas.</li>
+    <li>Revisaste robots.txt y los términos del sitio que quieres usar.</li>
+    <li>Tienes claro que lo que publicas va reescrito y con la fuente citada.</li>
+  </ul>
+  <div class="note why">
+    <b>Lo que sigue</b>
+    <p>En la guía 2 tomas exactamente estas funciones (<code>puede_visitar</code>, <code>descargar</code>, <code>extraer_articulo</code>, <code>urls_desde_sitemap</code>) y se las das como herramientas a un agente de IA que decide qué leer, extrae datos estructurados y escribe resúmenes propios con cita. Conserva tu archivo <code>scraper.py</code>: lo vas a importar.</p>
+  </div>
+  <p><a href="scraping-con-agentes_2026-10-08.html">Ir a la guía 2: scraping con agentes</a></p>
+</section>
+
+
+<section class="ej-head" id="ej">
+  <div class="pills"><span class="pill strong">Ejercicio práctico</span><span class="pill">8 de octubre de 2026</span><span class="pill">Versión 5 de la guía 1</span></div>
+  <h2 class="ej-title">Ejercicio: Scraping manual</h2>
+  <p class="lede">Vamos a mapear un sitio real con el navegador, sin código: <b>viviendoporelmundo.com</b>. Este ejercicio es el primer eslabón de la cadena de la guía 1 (el permiso): abrir el robots.txt, entender qué dice y decidir si se puede seguir.</p>
+  <div class="note">
+    <b>Sitio del ejercicio</b>
+    <p><code>https://www.viviendoporelmundo.com/</code></p>
+  </div>
+</section>
+
+<section class="block" id="ej-ruta">
+  <h2>La ruta del ejercicio</h2>
+  <p>Todo el ejercicio sigue un mismo camino de cinco etapas. Cada una produce algo que necesita la siguiente. Este es el mapa completo, para que siempre sepas en cuál estás:</p>
+  <ol class="flow" aria-label="Etapas del proceso">
+    <li><b>1. Permisos</b>Leer el robots.txt.<span class="t done">hecho</span></li>
+    <li class="now"><b>2. Mapeo</b>Listar las páginas del dominio.<span class="t ia">siguiente</span></li>
+    <li><b>3. Filtrado</b>Elegir las páginas útiles.<span class="t wait">pendiente</span></li>
+    <li><b>4. Scraping</b>Descargar y extraer el texto.<span class="t wait">pendiente</span></li>
+    <li><b>5. Archivo</b>Guardar, reescribir y citar.<span class="t wait">pendiente</span></li>
+  </ol>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Etapa</th><th>Qué es</th><th>Qué obtienes</th><th>Dónde está</th></tr></thead>
+    <tbody>
+      <tr><td><b>1. Revisión de permisos</b> (reconocimiento previo)</td><td>Leer qué permite y qué prohíbe el sitio, y a qué ritmo.</td><td>Luz verde o parada, lista de rutas prohibidas, espera entre páginas y dirección del mapa.</td><td>Pasos 1 al 3 de este ejercicio. Paso 1 del código de la guía 1.</td></tr>
+      <tr><td><b>2. Mapeo del dominio</b> (descubrimiento de URLs)</td><td>Conseguir la lista de páginas que existen, sin leer su contenido.</td><td>Un listado de direcciones del sitio y cuántas son.</td><td>Paso 4 de este ejercicio. Paso 5 (5A y 5B) de la guía 1.</td></tr>
+      <tr><td><b>3. Filtrado</b></td><td>Quedarte solo con las páginas que sirven, por ejemplo los artículos.</td><td>Una lista corta y priorizada.</td><td>Paso 5C de la guía 1. En la guía 2, lo hace un agente.</td></tr>
+      <tr><td><b>4. Scraping</b> (extracción)</td><td>Descargar cada página elegida y sacar su texto y datos.</td><td>Título, autor, fecha y texto limpio de cada artículo.</td><td>Pasos 2 al 4 de la guía 1.</td></tr>
+      <tr><td><b>5. Almacenamiento y reescritura</b></td><td>Guardar con fuente y fecha, y redactar con tus palabras.</td><td>Fichas listas para usar, con la fuente citada.</td><td>Pasos 6 y 7 de la guía 1.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note why">
+    <b>Los nombres, para no confundirse</b>
+    <p>El proceso completo se llama <b>scraping web</b> o <b>web crawling</b>. Estrictamente, <i>crawling</i> es recorrer el sitio para descubrir páginas (etapa 2) y <i>scraping</i> es extraer los datos de cada una (etapa 4). En la práctica se usan casi como sinónimos. Ahora mismo estamos cerrando la etapa 1; mapear el dominio empieza en cuanto abras el sitemap.</p>
+  </div>
+</section>
+
+<section class="block" id="ej-paso1">
+  <h2><span class="n">1</span>Abrir el robots.txt en el navegador</h2>
+  <p>El robots.txt siempre vive en el mismo lugar: la raíz del dominio, con el nombre exacto <code>robots.txt</code>. No hay que buscarlo; se escribe la dirección completa en la barra del navegador.</p>
+  <div class="anatomy" aria-label="Partes de la dirección"><span class="a1">https://</span><span class="a2">www.viviendoporelmundo.com</span><span class="a3">/robots.txt</span></div>
+  <div class="legend"><span>Naranja: protocolo (cómo se conecta)</span><span>Verde: dominio (dónde está el sitio)</span><span>Azul: ruta del archivo</span></div>
+  <ol class="plain">
+    <li>Abre una pestaña nueva en Chrome.</li>
+    <li>Pega <code>https://www.viviendoporelmundo.com/robots.txt</code> y pulsa Enter.</li>
+    <li>Si todo va bien, verás una página de texto plano, sin diseño, con líneas cortas.</li>
+  </ol>
+  <div class="note gets">
+    <b>Por qué empezamos aquí</b>
+    <p>Antes de mapear o leer una sola página hay que saber si el sitio lo permite. Es el mismo orden de la guía 1: primero permiso, después descarga.</p>
+  </div>
+</section>
+
+<section class="block" id="ej-error">
+  <h2>Si Chrome dice "This site can't be reached"</h2>
+  <p>Es el error más común al empezar, y casi siempre es un detalle de escritura. Por ejemplo, si escribes la dirección sin la terminación del dominio:</p>
+<div class="code"><div class="code-head"><span>Dirección mal escrita</span><button type="button">Copiar</button></div><pre><code>viviendoporelmundo/robots.txt</code></pre></div>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Qué dice el error</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr><td><code>This site can't be reached</code></td><td>Chrome no pudo llegar a ningún servidor con esa dirección.</td></tr>
+      <tr><td><code>Check if there is a typo in…</code></td><td>Sugiere revisar cómo escribiste el dominio.</td></tr>
+      <tr><td><code>DNS_PROBE_FINISHED_NXDOMAIN</code></td><td>El dominio no existe. NX significa "no existe" y DNS es la "libreta de direcciones" de internet.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">
+    <b>La causa y la solución</b>
+    <p>Un dominio necesita su terminación (<code>.com</code>, <code>.co</code>, <code>.ai</code>…). <code>viviendoporelmundo</code> a secas no es un dominio; <code>viviendoporelmundo.com</code> sí. Copia y pega la dirección completa del paso 1 en vez de escribirla a mano.</p>
+  </div>
+  <p>Un error <b>404</b> es distinto: significa que el sitio existe pero no tiene robots.txt. Eso no prohíbe nada, pero obliga a revisar los términos de uso del sitio.</p>
+</section>
+
+<section class="block" id="ej-paso2">
+  <h2><span class="n">2</span>Qué buscar: los 4 tipos de líneas</h2>
+  <p>Un robots.txt se compone de solo cuatro tipos de líneas. Aprender a reconocerlas es el 90% de la lectura.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Línea</th><th>Qué dice</th><th>Ejemplo</th></tr></thead>
+    <tbody>
+      <tr><td><code>User-agent:</code></td><td>A qué bot se aplican las reglas que van debajo. <code>*</code> significa todos.</td><td><code>User-agent: *</code></td></tr>
+      <tr><td><code>Disallow:</code></td><td>Rutas prohibidas. Todo lo que cuelga de esa ruta también.</td><td><code>Disallow: /wp-admin/</code></td></tr>
+      <tr><td><code>Allow:</code></td><td>Permitido. Se usa como regla general o como excepción dentro de una ruta prohibida.</td><td><code>Allow: /</code></td></tr>
+      <tr><td><code>Sitemap:</code></td><td>La dirección del mapa del sitio. Es la que más nos importa.</td><td><code>Sitemap: http://viviendoporelmundo.com/sitemap_index.xml</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">
+    <b>Una regla que detiene todo</b>
+    <p>Si encuentras <code>Disallow: /</code> a secas bajo <code>User-agent: *</code>, todo el sitio está prohibido para los bots y el ejercicio termina ahí. Con <code>Disallow:</code> vacío o con <code>Allow: /</code>, el sitio está abierto.</p>
+  </div>
+</section>
+
+<section class="block" id="ej-ua">
+  <h2>Qué es un User-agent y qué tipos de bots existen</h2>
+  <p>El <b>User-agent</b> es el nombre con el que un programa se presenta ante un sitio web. Cuando abres una página con Chrome, Chrome se presenta como navegador. Cuando Google rastrea el sitio, se presenta como <code>Googlebot</code>. Tu scraper también se presenta con un nombre: el <code>USER_AGENT</code> que definimos en el paso 1 del código de la guía 1. El robots.txt lee ese nombre y decide qué reglas le tocan.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Tipo de bot</th><th>Nombres típicos</th><th>Qué hacen</th></tr></thead>
+    <tbody>
+      <tr><td>Buscadores</td><td><code>Googlebot</code>, <code>Bingbot</code></td><td>Recorren sitios para que aparezcan en los resultados de búsqueda.</td></tr>
+      <tr><td>Rastreadores de IA</td><td><code>GPTBot</code>, <code>ClaudeBot</code>, <code>CCBot</code></td><td>Recogen texto para entrenar o alimentar modelos de IA.</td></tr>
+      <tr><td>Redes sociales</td><td><code>facebookexternalhit</code>, <code>Twitterbot</code></td><td>Leen la página para armar la vista previa cuando alguien comparte un enlace.</td></tr>
+      <tr><td>Herramientas SEO</td><td><code>AhrefsBot</code>, <code>SemrushBot</code></td><td>Analizan sitios para estudios de posicionamiento.</td></tr>
+      <tr><td>Scrapers propios</td><td>El nombre que tú inventes</td><td>Lo que tú programes, por ejemplo <code>MiBotInvestigacion</code>.</td></tr>
+    </tbody>
+  </table></div>
+  <h3 class="sub">Cómo se ve un robots.txt con varios bloques</h3>
+  <p>Este es un ejemplo genérico, solo para aprender a leer. No es el de ningún sitio real:</p>
+<div class="code"><div class="code-head"><span>Ejemplo genérico</span><button type="button">Copiar</button></div><pre><code>User-agent: Googlebot
+Allow: /
+
+User-agent: GPTBot
+Disallow: /
+
+User-agent: *
+Disallow: /admin</code></pre></div>
+  <p>Se lee así: Google puede entrar a todo. GPTBot tiene prohibido todo el sitio. Cualquier otro bot (el asterisco) solo tiene prohibido <code>/admin</code>.</p>
+  <div class="note why">
+    <b>Qué regla te aplica a ti</b>
+    <p>Un bot lee el bloque que lleva su propio nombre y, si no hay ninguno, usa el bloque <code>User-agent: *</code>. Como tu scraper tiene un nombre propio que casi ningún sitio menciona, normalmente te aplica el bloque <code>*</code>. Si el sitio tuviera un bloque con tu nombre exacto, ese sería el que manda.</p>
+  </div>
+</section>
+
+<section class="block" id="ej-lectura">
+  <h2><span class="n">3</span>Leer el robots.txt de viviendoporelmundo.com</h2>
+  <p>Esto fue lo que apareció al abrir <code>viviendoporelmundo.com/robots.txt</code>. Con o sin <code>www</code> suele cargar lo mismo; tú abriste la versión sin <code>www</code>.</p>
+<div class="code"><div class="code-head"><span>robots.txt de viviendoporelmundo.com (8 de octubre de 2026)</span><button type="button">Copiar</button></div><pre><code>User-agent: *
+Disallow: /cgi-bin/
+Disallow: /wp-admin/
+Disallow: /wp-includes/
+Crawl-delay: 10
+
+Disallow: /xmlrpc.php
+Disallow: /readme.html
+Allow: /wp-content/uploads/
+Disallow: /wp-content/plugins/
+
+Sitemap: http://viviendoporelmundo.com/sitemap_index.xml
+
+User-Agent: Googlebot
+Allow: .js
+Allow: .css</code></pre></div>
+  <h3 class="sub">Cómo está organizado</h3>
+  <p>El archivo tiene <b>dos bloques</b> y una línea suelta. Un bloque es un <code>User-agent:</code> seguido de sus reglas; la línea en blanco o un nuevo <code>User-agent:</code> marca dónde cambia de destinatario.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Parte</th><th>Para quién es</th></tr></thead>
+    <tbody>
+      <tr><td>Bloque 1: <code>User-agent: *</code> y todas sus reglas</td><td>Todos los bots. Incluye al tuyo.</td></tr>
+      <tr><td>Línea <code>Sitemap:</code></td><td>Para cualquiera. No pertenece a ningún bloque: es un aviso general.</td></tr>
+      <tr><td>Bloque 2: <code>User-Agent: Googlebot</code></td><td>Solo el bot de Google.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub">Bloque 1: las reglas para todos los bots</h3>
+  <p>Piensa en el robots.txt como los carteles en la puerta de un edificio. Este bloque es el cartel de "visitantes en general".</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Línea</th><th>Qué significa</th><th>Para entender la lógica</th></tr></thead>
+    <tbody>
+      <tr><td><code>User-agent: *</code></td><td>Las reglas de abajo aplican a cualquier bot.</td><td>El cartel dice "para todo visitante".</td></tr>
+      <tr><td><code>Disallow: /cgi-bin/</code></td><td>Carpeta técnica del servidor, con programas internos. No tiene artículos.</td><td>La sala de máquinas del edificio: no es para visitas.</td></tr>
+      <tr><td><code>Disallow: /wp-admin/</code></td><td>Panel de administración de WordPress, donde el dueño entra con su contraseña a publicar.</td><td>La oficina del administrador. La dirección <code>viviendoporelmundo.com/wp-admin/</code> no se visita.</td></tr>
+      <tr><td><code>Disallow: /wp-includes/</code></td><td>Archivos internos de WordPress. Es código, no contenido.</td><td>Los cables y tuberías detrás de la pared.</td></tr>
+      <tr><td><code>Crawl-delay: 10</code></td><td>Pide esperar 10 segundos entre una petición y la siguiente.</td><td>"Toca el timbre una vez cada 10 segundos, no diez veces seguidas." Con 50 páginas son unos 8 minutos; con 500, cerca de 1 hora 23 minutos; con 5.000, unas 14 horas.</td></tr>
+      <tr><td><code>Disallow: /xmlrpc.php</code></td><td>Puerta técnica antigua de WordPress para controlarlo a distancia. Los sitios la cierran porque suele ser blanco de ataques.</td><td>Una puerta trasera que prefieren mantener cerrada para todos.</td></tr>
+      <tr><td><code>Disallow: /readme.html</code></td><td>Archivo de instalación de WordPress. No tiene contenido útil y suele mostrar la versión instalada.</td><td>El manual de instrucciones que viene en la caja: no es parte de lo que se exhibe.</td></tr>
+      <tr><td><code>Allow: /wp-content/uploads/</code></td><td>Carpeta donde WordPress guarda las fotos y archivos que se suben a los artículos. Está permitida de forma explícita.</td><td>Una foto de un viaje quedaría en una dirección parecida a <code>…/wp-content/uploads/2025/03/foto.jpg</code>. Es un ejemplo, no una dirección real.</td></tr>
+      <tr><td><code>Disallow: /wp-content/plugins/</code></td><td>Carpeta de los plugins (extensiones) instalados. Es código, no contenido.</td><td>Las herramientas del taller, no lo que se vende.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub">La línea Sitemap</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Línea</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr><td><code>Sitemap: http://viviendoporelmundo.com/sitemap_index.xml</code></td><td>La dirección del mapa del sitio. Dos detalles: empieza con <code>http://</code> y no <code>https://</code> (el navegador normalmente te redirige solo), y se llama <code>sitemap_index</code>, o sea que es un <b>índice</b> que apunta a varios mapas más pequeños, no una lista directa de páginas.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="sub">Bloque 2: las reglas solo para Googlebot</h3>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Línea</th><th>Qué significa</th></tr></thead>
+    <tbody>
+      <tr><td><code>User-Agent: Googlebot</code></td><td>Lo que sigue es solo para el bot de Google.</td></tr>
+      <tr><td><code>Allow: .js</code> y <code>Allow: .css</code></td><td>Le permite cargar los archivos de scripts (<code>.js</code>) y de estilos (<code>.css</code>). Así Google ve la página con su diseño completo, como lo vería una persona en el navegador.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note why">
+    <b>La lógica de tener un bloque aparte</b>
+    <p>Un bot que encuentra un bloque con su propio nombre lee solo ese y deja de lado el bloque <code>*</code>. Googlebot tiene el suyo, así que sigue sus reglas y no las del bloque 1. Tu bot (<code>MiBotInvestigacion</code>) no aparece por nombre, así que te aplica el bloque 1 completo: las seis rutas prohibidas y la espera de 10 segundos.</p>
+  </div>
+</section>
+
+<section class="block" id="ej-codigo">
+  <h2>Cómo lo leería el código de la guía 1</h2>
+  <p>No tienes que interpretar el archivo a mano cada vez: Python trae un lector de robots.txt (el mismo del paso 1 del código). Con tres líneas le preguntas si puedes visitar una ruta, cuánto esperar y dónde está el mapa:</p>
+<div class="code"><div class="code-head"><span>probar_robots.py</span><button type="button">Copiar</button></div><pre><code>from urllib.robotparser import RobotFileParser
+
+rp = RobotFileParser()
+rp.set_url("https://viviendoporelmundo.com/robots.txt")
+rp.read()
+
+bot = "MiBotInvestigacion/1.0"
+print(rp.can_fetch(bot, "https://viviendoporelmundo.com/wp-admin/"))   # ¿puedo visitar esta ruta?
+print(rp.crawl_delay(bot))                                              # ¿cuántos segundos esperar?
+print(rp.site_maps())                                                   # ¿dónde está el mapa?</code></pre></div>
+  <p>Lo probé con el texto exacto de tu captura (Python 3.13; <code>site_maps()</code> requiere Python 3.8 o superior). Estos fueron los resultados:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Pregunta</th><th>Respuesta</th></tr></thead>
+    <tbody>
+      <tr><td>¿Puedo visitar la portada <code>/</code>?</td><td><code>True</code></td></tr>
+      <tr><td>¿Puedo visitar un artículo, por ejemplo <code>/un-articulo/</code>?</td><td><code>True</code></td></tr>
+      <tr><td>¿Puedo visitar <code>/wp-content/uploads/foto.jpg</code>?</td><td><code>True</code></td></tr>
+      <tr><td>¿Puedo visitar <code>/wp-admin/</code>?</td><td><code>False</code></td></tr>
+      <tr><td>¿Puedo visitar <code>/wp-includes/…</code>?</td><td><code>False</code></td></tr>
+      <tr><td>¿Puedo visitar <code>/xmlrpc.php</code> o <code>/readme.html</code>?</td><td><code>False</code></td></tr>
+      <tr><td>¿Puedo visitar <code>/wp-content/plugins/…</code>?</td><td><code>False</code></td></tr>
+      <tr><td>¿Cuánto esperar entre peticiones?</td><td><code>10</code> segundos</td></tr>
+      <tr><td>¿Dónde está el mapa?</td><td><code>http://viviendoporelmundo.com/sitemap_index.xml</code></td></tr>
+    </tbody>
+  </table></div>
+  <h3 class="sub">Un ajuste que sí cambia el código</h3>
+  <p>En el paso 2 de la guía 1, la función <code>descargar</code> espera 2 segundos por defecto. Este sitio pide 10. En vez de cambiar el número a mano en cada sitio, puedes pedirle el dato al robots.txt:</p>
+<div class="code"><div class="code-head"><span>scraper.py (función nueva)</span><button type="button">Copiar</button></div><pre><code>def espera_del_sitio(url: str, por_defecto: float = 2.0) -&gt; float:
+    """Lee el Crawl-delay del robots.txt; si el sitio no lo indica, usa el valor por defecto."""
+    p = urlparse(url)
+    retraso = _robots(f"{p.scheme}://{p.netloc}").crawl_delay(USER_AGENT)
+    return float(retraso) if retraso else por_defecto
+
+# Y dentro de descargar(), en lugar de time.sleep(espera):
+#     time.sleep(espera_del_sitio(url))</code></pre></div>
+</section>
+
+<section class="block" id="ej-uso">
+  <h2>Qué obtienes de esta información, para qué sirve y a dónde lleva</h2>
+  <p>El robots.txt no te da contenido. Te da permisos, límites y pistas. Esto es lo que sacamos de este archivo en concreto:</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Lo que descubriste</th><th>Qué obtienes</th><th>Para qué sirve</th></tr></thead>
+    <tbody>
+      <tr><td>No hay <code>Disallow: /</code> para el bloque <code>*</code></td><td>Permiso general: el contenido público (artículos y páginas) no está prohibido.</td><td>Es la luz verde para seguir con el mapeo.</td></tr>
+      <tr><td>Seis rutas prohibidas</td><td>Una lista de exclusión: <code>/cgi-bin/</code>, <code>/wp-admin/</code>, <code>/wp-includes/</code>, <code>/xmlrpc.php</code>, <code>/readme.html</code>, <code>/wp-content/plugins/</code>.</td><td>Tu código las evita solo con <code>puede_visitar()</code>. Además no pierdes tiempo en zonas que no tienen artículos.</td></tr>
+      <tr><td><code>Crawl-delay: 10</code></td><td>Tu ritmo de trabajo: una página cada 10 segundos.</td><td>Sirve para calcular cuánto tardará el trabajo antes de empezarlo y para configurar la espera del código.</td></tr>
+      <tr><td>Rutas que empiezan con <code>wp-</code></td><td>Una pista fuerte de que el sitio está hecho con WordPress. Es una deducción, no un dato confirmado.</td><td>Sabes qué esperar: WordPress suele tener un sitemap en forma de índice, con mapas separados para artículos, páginas y categorías.</td></tr>
+      <tr><td><code>Allow: /wp-content/uploads/</code></td><td>Saber dónde viven las fotos del sitio.</td><td>Solo es un dato de ubicación. Que el robots.txt lo permita no significa que puedas reutilizar las fotos: tienen derechos de autor.</td></tr>
+      <tr><td><code>Sitemap: …/sitemap_index.xml</code></td><td>La dirección del mapa del dominio.</td><td>Es el siguiente archivo que abrimos.</td></tr>
+      <tr><td>Bloque aparte para Googlebot</td><td>Un ejemplo real de que un sitio puede tratar distinto a cada bot.</td><td>Te enseña a leer siempre qué bloque te toca a ti.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn">
+    <b>Lo que este archivo no te dice</b>
+    <p>No dice nada sobre derechos de autor ni sobre los términos de uso del sitio, que pueden ser más estrictos que el robots.txt. Tampoco es un candado: es una petición de cortesía que nosotros respetamos siempre. Por eso, antes de extraer contenido, se leen los términos de uso, y no se extrae nada detrás de login o paywall.</p>
+  </div>
+  <h3 class="sub">A dónde te lleva</h3>
+  <p>Cada dato abre el paso siguiente. Este es el camino que sigue desde aquí:</p>
+  <ol class="flow">
+    <li><b>robots.txt</b>Permiso, límites y ritmo.<span class="t">hecho</span></li>
+    <li><b>sitemap_index.xml</b>Lista de mapas hijos.<span class="t">siguiente</span></li>
+    <li><b>Mapas hijos</b>Entradas, páginas, categorías.<span class="t">navegador</span></li>
+    <li><b>Lista de URLs</b>Todas las páginas del sitio.<span class="t">navegador</span></li>
+    <li><b>Filtro</b>Quedarte con los artículos útiles.<span class="t">tú o código</span></li>
+    <li><b>Lectura</b>Descargar cada una, esperando 10 s.<span class="t">código</span></li>
+    <li><b>Fichas</b>Texto, fuente y fecha de consulta.<span class="t">código</span></li>
+  </ol>
+  <p>Este mismo recorrido es el que, en la guía 2, se le entrega a un agente de IA: el robots.txt le marca los límites y él decide qué páginas leer.</p>
+</section>
+
+<section class="block" id="ej-siguiente">
+  <h2><span class="n">4</span>Siguiente paso: abrir el sitemap</h2>
+  <ol class="plain">
+    <li>Abre en una pestaña nueva <code>http://viviendoporelmundo.com/sitemap_index.xml</code>, la dirección de la línea <code>Sitemap:</code>. Si el navegador te redirige a <code>https</code> o a <code>www</code>, es normal.</li>
+    <li>Como se llama <code>sitemap_index</code>, espera un índice con etiquetas <code>&lt;sitemap&gt;</code> que apuntan a otros mapas, por ejemplo uno de entradas, otro de páginas y otro de categorías. Ábrelos uno por uno; los nombres exactos los confirmamos al verlos.</li>
+    <li>Cuenta cuántas páginas hay y copia las primeras 10 direcciones.</li>
+  </ol>
+  <p>Esa lista es el mapa del dominio. Después viene decidir cuáles páginas vale la pena leer. Si el sitio no tuviera sitemap, se mapea siguiendo los enlaces desde la portada (<code>rastrear()</code>, paso 5B de la guía 1).</p>
+</section>
+
+<section class="block" id="ej-registro">
+  <h2>Registro del ejercicio: viviendoporelmundo.com</h2>
+  <p>Resumen de lo que encontramos al abrir el robots.txt. Las filas en verde están resueltas; la que no, queda pendiente.</p>
+  <div class="tablewrap"><table class="fill">
+    <thead><tr><th>Qué revisar</th><th>Lo que encontré</th></tr></thead>
+    <tbody>
+      <tr><td>Fecha de la revisión</td><td class="ok">8 de octubre de 2026</td></tr>
+      <tr><td>Dirección abierta</td><td class="ok"><code>https://www.viviendoporelmundo.com/robots.txt</code></td></tr>
+      <tr><td>¿Cargó o dio error? (404, DNS…)</td><td class="ok">Cargó bien: texto plano, sin error.</td></tr>
+      <tr><td>Número de bloques <code>User-agent:</code></td><td class="ok">2: <code>*</code> y <code>Googlebot</code>.</td></tr>
+      <tr><td>Reglas del bloque <code>*</code> (<code>Disallow</code> / <code>Allow</code>)</td><td class="ok">Prohibidas: <code>/cgi-bin/</code>, <code>/wp-admin/</code>, <code>/wp-includes/</code>, <code>/xmlrpc.php</code>, <code>/readme.html</code>, <code>/wp-content/plugins/</code>. Permitida: <code>/wp-content/uploads/</code>. Espera: <code>Crawl-delay: 10</code>.</td></tr>
+      <tr><td>Línea <code>Sitemap:</code></td><td class="ok"><code>http://viviendoporelmundo.com/sitemap_index.xml</code></td></tr>
+      <tr><td>¿Hay <code>Disallow: /</code> a secas?</td><td class="ok">No.</td></tr>
+      <tr><td>Términos de uso revisados</td><td>Pendiente: abrir y leer los términos del sitio.</td></tr>
+      <tr><td>Decisión: ¿seguimos con el mapeo?</td><td class="ok">Sí. El robots.txt lo permite, con 10 segundos de espera entre páginas. Falta revisar los términos de uso antes de extraer contenido.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section class="block" id="ej-versiones">
+  <h2>Versiones de este archivo</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Versión</th><th>Fecha</th><th>Archivo</th><th>Qué contiene</th></tr></thead>
+    <tbody>
+      <tr><td>v1</td><td>8 de octubre de 2026</td><td><code>scraping-manual_2026-10-08.html</code></td><td>Guía de 7 pasos con código en Python.</td></tr>
+      <tr><td>v2</td><td>8 de octubre de 2026</td><td><code>scraping-manual_2026-10-08_v2.html</code></td><td>Guía más ejercicio, con ejemplos de otro dominio. Reemplazada por la v3.</td></tr>
+      <tr><td>v3</td><td>8 de octubre de 2026</td><td><code>scraping-manual_2026-10-08_v3.html</code></td><td>Guía más ejercicio centrado solo en viviendoporelmundo.com. Reemplazada por la v4.</td></tr>
+      <tr><td>v4</td><td>8 de octubre de 2026</td><td><code>scraping-manual_2026-10-08_v4.html</code></td><td>Agrega la lectura real del robots.txt de viviendoporelmundo.com: explicación línea por línea, cómo lo lee el código, qué se obtiene y registro completado. Reemplazada por la v5.</td></tr>
+      <tr><td>v5</td><td>8 de octubre de 2026</td><td><code>scraping-manual_2026-10-08_v5.html</code></td><td>Agrega al inicio del ejercicio la ruta de cinco etapas (permisos, mapeo, filtrado, scraping, archivo) con el estado de cada una.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Cada vez que avancemos (sitemap, filtrado de páginas, primera extracción) se agrega una sección nueva aquí y se guarda una versión nueva con la fecha en el nombre.</p>
+</section>
+
+<footer>Guía 1 de 2, scraping manual. Elaborada el 8 de octubre de 2026. Las librerías cambian de versión con frecuencia: si algún comando falla, revisa la documentación oficial de cada una.</footer>
+
+</main>
+</div>
+
+<script>
+document.querySelectorAll('.code-head button').forEach(function(b){
+  b.addEventListener('click',function(){
+    var t=b.closest('.code').querySelector('pre').innerText;
+    var done=function(){b.textContent='Copiado';setTimeout(function(){b.textContent='Copiar'},1600)};
+    if(navigator.clipboard){navigator.clipboard.writeText(t).then(done)}
+    else{var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();done()}
+  });
+});
+var det=document.querySelector('.toc details');
+if(det && window.matchMedia('(min-width:901px)').matches){det.open=true;det.querySelector('summary').style.pointerEvents='none'}
+var links=[].slice.call(document.querySelectorAll('.toc a[href^="#"]'));
+var map={};links.forEach(function(a){map[a.getAttribute('href').slice(1)]=a});
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){links.forEach(function(l){l.classList.remove('on')});
+        var a=map[e.target.id];if(a)a.classList.add('on')}
+    });
+  },{rootMargin:'-15% 0px -70% 0px'});
+  Object.keys(map).forEach(function(id){var s=document.getElementById(id);if(s)io.observe(s)});
+}
+</script>
+</body>
+</html>

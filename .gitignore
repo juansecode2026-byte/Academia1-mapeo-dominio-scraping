@@ -1,0 +1,12 @@
+desktop.ini
+.venv/
+__pycache__/
+*.pyc
+.env
+
+# Datos extraídos (contenido de terceros)
+datos/
+*.db
+resultados.json
+resultados.csv
+fichas_agente.json

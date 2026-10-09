@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de los resultados: mapeo y scraping con agentes (v2)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>:root{--bg:#EDF1F3;--paper:#FAFBFC;--ink:#13242C;--muted:#51666F;--line:#CBD6DB;--accent:#0E7C7B;--accent-soft:#D8EEEC;--accent-ink:#0A5655;--green:#1D7A4D;--green-soft:#DDF1E6;--amber:#A8570B;--amber-soft:#FDF0DC;--head:#E3EAED;--font-head:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;--font-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono",Consolas,monospace}
+body.agentes{--accent:#5A3FD0;--accent-soft:#E6E0FA;--accent-ink:#3F2A9E}
+body.devtools{--accent:#B8590A;--accent-soft:#FBE6D2;--accent-ink:#8A3F05}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1A20;--paper:#16252D;--ink:#E4EDF1;--muted:#9DB0B9;--line:#2B4048;--accent-soft:#17383A;--accent-ink:#7FD6D4;--green-soft:#14352A;--green:#7FD9A8;--amber-soft:#3A2A12;--amber:#F0B36A;--head:#1D313A}body.agentes{--accent:#8F78F0;--accent-soft:#251F4A;--accent-ink:#B9A9FF}body.devtools{--accent:#E58A3A;--accent-soft:#3A2412;--accent-ink:#F5B880}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.65}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px 80px}
+.hero{padding:48px 0 8px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.pill{font-size:14px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
+.pill.strong{background:var(--accent);border-color:var(--accent);color:#fff}
+h1{font-family:var(--font-head);font-weight:800;font-size:clamp(34px,6vw,60px);line-height:1;letter-spacing:-.03em;margin:0 0 18px}
+.lede{font-size:19px;max-width:64ch;color:var(--muted);margin:0 0 28px}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 8px}
+nav.toc b{font-family:var(--font-head)}nav.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:32px;font-size:15px}
+nav.toc a{color:var(--accent-ink)}
+section{border-top:1px solid var(--line);margin-top:48px;padding-top:32px;scroll-margin-top:16px}
+h2{font-family:var(--font-head);font-weight:700;font-size:clamp(25px,3.4vw,34px);line-height:1.1;margin:0 0 14px}
+h3{font-family:var(--font-head);font-size:20px;margin:26px 0 8px}
+p{margin:0 0 14px;max-width:72ch}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--accent-soft);color:var(--accent-ink);padding:1px 6px;border-radius:5px}
+a{color:var(--accent-ink)}
+.note{max-width:72ch;margin:16px 0;padding:12px 16px;border-radius:10px;border-left:4px solid var(--accent);background:var(--accent-soft);font-size:16px}
+.note b{display:block;font-family:var(--font-head)}
+.tablewrap{overflow-x:auto;margin:14px 0 22px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
+th,td{text-align:left;padding:10px 14px;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:var(--head);font-family:var(--font-head);font-size:15px}tr:last-child td{border-bottom:0}
+.stage{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:6px 18px 12px;margin:0 0 16px}
+.stage h3{margin-top:14px}
+.stage td:first-child{width:26%;font-weight:600}
+.stage td:last-child{color:var(--muted)}
+.check{list-style:none;margin:14px 0 22px;padding:0;max-width:none}
+.check li{display:grid;grid-template-columns:28px 1fr;gap:4px 12px;padding:12px 16px;margin:0 0 8px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
+.check li.now{border:2px solid var(--accent)}
+.check li.done{background:var(--green-soft);border-color:var(--green)}
+.check .box{width:22px;height:22px;border:2px solid var(--accent);border-radius:6px;margin-top:3px;display:grid;place-items:center;font-size:15px;line-height:1;color:#fff}
+.check li.done .box{background:var(--green);border-color:var(--green)}
+.check b{font-family:var(--font-head);font-size:17px}
+.check .meta{display:block;color:var(--muted);font-size:14.5px}
+.check .tag{display:inline-block;margin-left:8px;font-size:12.5px;padding:1px 9px;border-radius:999px;background:var(--accent);color:#fff;vertical-align:.1em}
+.banda{background:var(--banda);color:#fff;border:0;border-radius:18px;padding:40px 28px 8px;margin-top:72px}
+.banda>h2{font-size:clamp(28px,5vw,48px);text-transform:uppercase;letter-spacing:.01em;line-height:1.02;margin-bottom:18px}
+.banda p{color:#fff}
+.banda h3{color:var(--banda-titulo);font-size:23px;border-top:1px solid rgba(255,255,255,.35);padding-top:22px;margin-top:38px;text-transform:none}
+.parte{display:inline-block;font-family:var(--font-body);font-size:13px;font-weight:600;line-height:1.4;padding:2px 12px;margin-right:12px;border-radius:999px;background:var(--banda-titulo);color:#2B1D00;text-decoration:none;vertical-align:.15em;white-space:nowrap}
+a.parte:hover{filter:brightness(1.08);text-decoration:underline}
+.stage{scroll-margin-top:16px}
+.paraque{max-width:72ch;margin:12px 0 18px;padding:10px 16px;border-left:4px solid var(--banda-titulo);background:rgba(255,255,255,.14);border-radius:8px;color:#fff;font-size:16px}
+.paraque b{display:block;margin-bottom:2px;color:var(--banda-titulo);font-family:var(--font-head);font-size:15px;text-transform:uppercase;letter-spacing:.04em}
+.banda .tablewrap{color:var(--ink)}
+.banda code{background:rgba(255,255,255,.18);color:#fff}
+.banda .tablewrap code,.banda .note code{background:var(--accent-soft);color:var(--accent-ink)}
+.banda .note{color:var(--ink)}
+.banda ol,.banda ul{max-width:72ch;padding-left:22px;margin:0 0 16px}
+.banda li{margin-bottom:6px}
+pre.cod{background:#14222B;color:#DCE8EE;border-radius:12px;padding:14px 18px;overflow-x:auto;font-family:var(--font-mono);font-size:13.5px;line-height:1.6;margin:14px 0 20px}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+:root{--banda:#0A5655;--banda-titulo:#FFE69A}
+body.agentes{--banda:#3F2A9E}
+body.devtools{--banda:#8A3F05}
+@media (prefers-color-scheme:dark){:root{--banda:#0B4F4E}body.agentes{--banda:#34267F}body.devtools{--banda:#7A3604}}
+@media(max-width:700px){body{font-size:16.5px}nav.toc ol{columns:1}}
+</style>
+</head>
+<body class="agentes">
+<div class="wrap">
+<header class="hero"><div class="pills"><span class="pill strong">Agentes</span><span class="pill">9 de octubre de 2026</span><span class="pill">v2</span><span class="pill">Plan, sin resultados todavía</span></div><h1>Análisis de los resultados: mapeo y scraping con agentes</h1><p class="lede">Registro de lo que sale al repetir el mismo ejercicio con agentes de IA (Claude API). Se hace después de las otras dos formas, con las mismas etapas y métricas, para poder comparar.</p><nav class="toc"><b>Contenido</b><ol><li><a href="#objetivo">Para qué sirve este informe</a></li><li><a href="#pasos">Checklist de piezas (guía 2)</a></li><li><a href="#esqueleto">Esqueleto de cada etapa</a></li><li><a href="#metricas">Métricas a registrar</a></li><li><a href="#resultados">Resultados por etapa</a></li><li><a href="#comparacion">Comparación de las tres formas</a></li><li><a href="#decisiones">Decisiones del plan</a></li><li><a href="#versiones">Versiones de este archivo</a></li></ol></nav></header>
+<main>
+<section id="objetivo"><h2>Para qué sirve este informe</h2>
+<p>Es la forma con agentes de un ejercicio con tres formas. El manual se hace primero para entender cada eslabón; aquí se repite con agentes y se compara con las otras dos.</p>
+<div class="tablewrap"><table><thead><tr><th>Forma</th><th>Cómo se hace</th><th>Informe</th></tr></thead><tbody><tr><td>Manual con código</td><td>Tú, con Python escrito paso a paso y guiado.</td><td><code>analisis-resultados-mapeo-scraping-manual</code></td></tr><tr><td>Con DevTools</td><td>Tú, a mano en el navegador (F12), sin programa.</td><td><code>analisis-resultados-mapeo-scraping-con-devtools</code></td></tr><tr><td>Con agentes</td><td>Agentes de IA con la API de Claude.</td><td><code>analisis-resultados-mapeo-scraping-con-agentes</code></td></tr></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>Documento</th><th>Papel</th></tr></thead><tbody><tr><td>Guía 1 / Guía 2 (<code>documentacion/</code>)</td><td>El <b>cómo</b>: pasos y código. No se tocan.</td></tr><tr><td><code>FUENTES.md</code></td><td>La <b>ficha del sitio</b>: reglas, ritmo y estado de cada etapa.</td></tr><tr><td>Este informe</td><td>El <b>qué salió</b>: cifras, tiempos, fallos y conclusiones de cada etapa. Es el único lugar donde se registran los resultados.</td></tr></tbody></table></div>
+<p>Sitio del ejercicio: <code>https://www.viviendoporelmundo.com/</code>. Antes de tocarlo rige su ficha en <code>FUENTES.md</code>.</p>
+</section>
+<section id="pasos"><h2>Checklist de piezas (guía 2)</h2>
+<p>Son las seis piezas de la guía 2. Cada una hace una sola cosa; se detalla paso a paso cuando terminen las otras dos formas.</p>
+<ul class="check"><li class="wait"><span class="box"></span><div><b>Pieza 1. Mapa</b><span class="meta">Código · Lista las URLs del dominio · Equivale a la etapa 2 del manual.</span></div></li><li class="wait"><span class="box"></span><div><b>Pieza 2. Selector</b><span class="meta">IA (modelo rápido) · Elige cuáles merecen lectura · Equivale a la etapa 3.</span></div></li><li class="wait"><span class="box"></span><div><b>Pieza 3. Lector</b><span class="meta">Código · Descarga y limpia el texto · Equivale a la etapa 4.</span></div></li><li class="wait"><span class="box"></span><div><b>Pieza 4. Analista</b><span class="meta">IA (modelo mejor) · Extrae datos y resume con palabras propias · Equivale a las etapas 4 y 5.</span></div></li><li class="wait"><span class="box"></span><div><b>Pieza 5. Archivo</b><span class="meta">Código · Guarda con fuente y fecha · Equivale a la etapa 5.</span></div></li><li class="wait"><span class="box"></span><div><b>Pieza 6. Revisión</b><span class="meta">Tú · Apruebas o descartas cada ficha.</span></div></li></ul>
+<div class="note"><b>Antes de empezar</b>Terminan primero el manual con código y DevTools. Los permisos (etapa 1) y el mapa del sitio salen de esos ejercicios; aquí se reutilizan y se registra solo lo nuevo.</div>
+</section>
+<section id="esqueleto"><h2>Esqueleto de cada etapa</h2>
+<p>Cada etapa del informe lleva los mismos cinco bloques:</p>
+<div class="tablewrap"><table><thead><tr><th>Bloque</th><th>Qué va</th></tr></thead><tbody><tr><td>1. Qué se hizo</td><td>Dos líneas.</td></tr><tr><td>2. Resultado</td><td>Cifras y, si aplica, una muestra corta (nunca el texto completo de un artículo).</td></tr><tr><td>3. Costo</td><td>Tiempo de ejecución, peticiones al sitio y tokens (en manual es cero).</td></tr><tr><td>4. Qué falló o sorprendió</td><td>Errores, casos raros, cosas que no esperábamos.</td></tr><tr><td>5. Conclusión</td><td>Qué se aprendió y qué se haría distinto.</td></tr></tbody></table></div>
+</section>
+<section id="metricas"><h2>Métricas a registrar</h2>
+<p>Las mismas en los tres informes. Al final del informe de agentes se comparan las tres formas, una junto a otra.</p>
+<div class="tablewrap"><table><thead><tr><th>Métrica</th><th>Cómo se mide</th></tr></thead><tbody><tr><td>URLs encontradas / elegidas</td><td>Cuántas hay en el mapa y cuántas pasan el filtro.</td></tr><tr><td>Páginas leídas</td><td>Cuántas se descargaron y procesaron.</td></tr><tr><td>Tiempo total de ejecución</td><td>De pared, con la espera de 10 s incluida.</td></tr><tr><td>Peticiones al sitio</td><td>Debe respetar el <code>Crawl-delay</code>.</td></tr><tr><td>Costo en tokens (USD)</td><td>Manual: 0. Agentes: lo que marque la consola de la API.</td></tr><tr><td>Campos completos por ficha (%)</td><td>Título, autor, fecha y texto presentes.</td></tr><tr><td>Páginas que no eran artículo y se colaron</td><td>Falsos positivos del filtro.</td></tr><tr><td>Tiempo humano</td><td>Escribir código o prompts, y revisar el resultado.</td></tr></tbody></table></div>
+</section>
+<section id="resultados"><h2>Resultados por etapa</h2>
+<div class="stage" id="etapa-1"><h3>Etapa 1. Permisos (reutiliza el manual)</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Pendiente de hacer, después del manual.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-2"><h3>Etapa 2. Mapa</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Pendiente de hacer, después del manual.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-3"><h3>Etapa 3. Selector</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Pendiente de hacer, después del manual.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-4"><h3>Etapa 4. Lector y analista</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Pendiente de hacer, después del manual.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-5"><h3>Etapa 5. Archivo y revisión</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Pendiente de hacer, después del manual.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+</section>
+<section id="comparacion"><h2>Comparación de las tres formas</h2>
+<p>Se llena al cerrar las tres formas.</p>
+<div class="tablewrap"><table><thead><tr><th>Métrica</th><th>Manual con código</th><th>DevTools</th><th>Agentes</th><th>Lectura</th></tr></thead><tbody><tr><td>URLs encontradas / elegidas</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Páginas leídas</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Tiempo total de ejecución</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Peticiones al sitio</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Costo en tokens (USD)</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Campos completos por ficha (%)</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Páginas que no eran artículo y se colaron</td><td>—</td><td>—</td><td>—</td><td>—</td></tr><tr><td>Tiempo humano</td><td>—</td><td>—</td><td>—</td><td>—</td></tr></tbody></table></div>
+</section>
+<section id="decisiones"><h2>Decisiones del plan</h2>
+<div class="tablewrap"><table><thead><tr><th>Decisión</th><th>Valor</th></tr></thead><tbody><tr><td>Tres formas</td><td>Manual con código, DevTools y agentes: mismo sitio, mismas etapas y mismas métricas, para comparar.</td></tr><tr><td>Etapa 1 reabierta</td><td>Sí: los términos de uso pendientes se cierran antes de extraer contenido.</td></tr><tr><td>Etapa 0 de preparación</td><td>Es un paso propio.</td></tr><tr><td>Ubicación</td><td><code>analisis-resultados-scraping-mapeo/</code>, con copia en <code>.md</code>.</td></tr><tr><td>Muestra de la etapa 4</td><td>3 páginas y luego 10.</td></tr><tr><td>Contenido de terceros</td><td>El informe lleva cifras y citas cortas, nunca el texto completo de los artículos.</td></tr></tbody></table></div>
+</section>
+<section id="versiones"><h2>Versiones de este archivo</h2>
+<div class="tablewrap"><table><thead><tr><th>Versión</th><th>Fecha</th><th>Archivo</th><th>Qué contiene</th></tr></thead><tbody><tr><td>v1</td><td>9 de octubre de 2026</td><td><code>analisis-resultados-mapeo-scraping-con-agentes_2026-10-09_v1.html</code></td><td>Plan: checklist de piezas de la guía 2, esqueleto, métricas, resultados pendientes y tabla de comparación vacía.</td></tr><tr><td>v2</td><td>9 de octubre de 2026</td><td><code>analisis-resultados-mapeo-scraping-con-agentes_2026-10-09_v2.html</code></td><td>Agrega la tercera forma (DevTools): tabla de las tres formas y comparación con tres columnas.</td></tr></tbody></table></div>
+<p>Cada vez que se cierre un paso o una etapa se actualiza este informe y se guarda una versión nueva con la fecha en el nombre.</p>
+</section>
+</main>
+<footer>Análisis de los resultados: mapeo y scraping con agentes · v2 · 9 de octubre de 2026. Proyecto Mapeo de dominio y Scraping.</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Análisis de los resultados: mapeo y scraping con DevTools (v1)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>:root{--bg:#EDF1F3;--paper:#FAFBFC;--ink:#13242C;--muted:#51666F;--line:#CBD6DB;--accent:#0E7C7B;--accent-soft:#D8EEEC;--accent-ink:#0A5655;--green:#1D7A4D;--green-soft:#DDF1E6;--amber:#A8570B;--amber-soft:#FDF0DC;--head:#E3EAED;--font-head:"Bricolage Grotesque","Avenir Next","Segoe UI",system-ui,sans-serif;--font-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;--font-mono:"JetBrains Mono",Consolas,monospace}
+body.agentes{--accent:#5A3FD0;--accent-soft:#E6E0FA;--accent-ink:#3F2A9E}
+body.devtools{--accent:#B8590A;--accent-soft:#FBE6D2;--accent-ink:#8A3F05}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1A20;--paper:#16252D;--ink:#E4EDF1;--muted:#9DB0B9;--line:#2B4048;--accent-soft:#17383A;--accent-ink:#7FD6D4;--green-soft:#14352A;--green:#7FD9A8;--amber-soft:#3A2A12;--amber:#F0B36A;--head:#1D313A}body.agentes{--accent:#8F78F0;--accent-soft:#251F4A;--accent-ink:#B9A9FF}body.devtools{--accent:#E58A3A;--accent-soft:#3A2412;--accent-ink:#F5B880}}
+*{box-sizing:border-box}html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:17px;line-height:1.65}
+.wrap{max-width:980px;margin:0 auto;padding:0 20px 80px}
+.hero{padding:48px 0 8px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.pill{font-size:14px;padding:4px 12px;border-radius:999px;border:1px solid var(--line);background:var(--paper);color:var(--muted)}
+.pill.strong{background:var(--accent);border-color:var(--accent);color:#fff}
+h1{font-family:var(--font-head);font-weight:800;font-size:clamp(34px,6vw,60px);line-height:1;letter-spacing:-.03em;margin:0 0 18px}
+.lede{font-size:19px;max-width:64ch;color:var(--muted);margin:0 0 28px}
+nav.toc{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 8px}
+nav.toc b{font-family:var(--font-head)}nav.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:32px;font-size:15px}
+nav.toc a{color:var(--accent-ink)}
+section{border-top:1px solid var(--line);margin-top:48px;padding-top:32px;scroll-margin-top:16px}
+h2{font-family:var(--font-head);font-weight:700;font-size:clamp(25px,3.4vw,34px);line-height:1.1;margin:0 0 14px}
+h3{font-family:var(--font-head);font-size:20px;margin:26px 0 8px}
+p{margin:0 0 14px;max-width:72ch}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--accent-soft);color:var(--accent-ink);padding:1px 6px;border-radius:5px}
+a{color:var(--accent-ink)}
+.note{max-width:72ch;margin:16px 0;padding:12px 16px;border-radius:10px;border-left:4px solid var(--accent);background:var(--accent-soft);font-size:16px}
+.note b{display:block;font-family:var(--font-head)}
+.tablewrap{overflow-x:auto;margin:14px 0 22px;border:1px solid var(--line);border-radius:12px;background:var(--paper)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:15.5px}
+th,td{text-align:left;padding:10px 14px;vertical-align:top;border-bottom:1px solid var(--line)}
+th{background:var(--head);font-family:var(--font-head);font-size:15px}tr:last-child td{border-bottom:0}
+.stage{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:6px 18px 12px;margin:0 0 16px}
+.stage h3{margin-top:14px}
+.stage td:first-child{width:26%;font-weight:600}
+.stage td:last-child{color:var(--muted)}
+.check{list-style:none;margin:14px 0 22px;padding:0;max-width:none}
+.check li{display:grid;grid-template-columns:28px 1fr;gap:4px 12px;padding:12px 16px;margin:0 0 8px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
+.check li.now{border:2px solid var(--accent)}
+.check li.done{background:var(--green-soft);border-color:var(--green)}
+.check .box{width:22px;height:22px;border:2px solid var(--accent);border-radius:6px;margin-top:3px;display:grid;place-items:center;font-size:15px;line-height:1;color:#fff}
+.check li.done .box{background:var(--green);border-color:var(--green)}
+.check b{font-family:var(--font-head);font-size:17px}
+.check .meta{display:block;color:var(--muted);font-size:14.5px}
+.check .tag{display:inline-block;margin-left:8px;font-size:12.5px;padding:1px 9px;border-radius:999px;background:var(--accent);color:#fff;vertical-align:.1em}
+.banda{background:var(--banda);color:#fff;border:0;border-radius:18px;padding:40px 28px 8px;margin-top:72px}
+.banda>h2{font-size:clamp(28px,5vw,48px);text-transform:uppercase;letter-spacing:.01em;line-height:1.02;margin-bottom:18px}
+.banda p{color:#fff}
+.banda h3{color:var(--banda-titulo);font-size:23px;border-top:1px solid rgba(255,255,255,.35);padding-top:22px;margin-top:38px;text-transform:none}
+.parte{display:inline-block;font-family:var(--font-body);font-size:13px;font-weight:600;line-height:1.4;padding:2px 12px;margin-right:12px;border-radius:999px;background:var(--banda-titulo);color:#2B1D00;text-decoration:none;vertical-align:.15em;white-space:nowrap}
+a.parte:hover{filter:brightness(1.08);text-decoration:underline}
+.stage{scroll-margin-top:16px}
+.paraque{max-width:72ch;margin:12px 0 18px;padding:10px 16px;border-left:4px solid var(--banda-titulo);background:rgba(255,255,255,.14);border-radius:8px;color:#fff;font-size:16px}
+.paraque b{display:block;margin-bottom:2px;color:var(--banda-titulo);font-family:var(--font-head);font-size:15px;text-transform:uppercase;letter-spacing:.04em}
+.banda .tablewrap{color:var(--ink)}
+.banda code{background:rgba(255,255,255,.18);color:#fff}
+.banda .tablewrap code,.banda .note code{background:var(--accent-soft);color:var(--accent-ink)}
+.banda .note{color:var(--ink)}
+.banda ol,.banda ul{max-width:72ch;padding-left:22px;margin:0 0 16px}
+.banda li{margin-bottom:6px}
+pre.cod{background:#14222B;color:#DCE8EE;border-radius:12px;padding:14px 18px;overflow-x:auto;font-family:var(--font-mono);font-size:13.5px;line-height:1.6;margin:14px 0 20px}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:15px}
+:root{--banda:#0A5655;--banda-titulo:#FFE69A}
+body.agentes{--banda:#3F2A9E}
+body.devtools{--banda:#8A3F05}
+@media (prefers-color-scheme:dark){:root{--banda:#0B4F4E}body.agentes{--banda:#34267F}body.devtools{--banda:#7A3604}}
+@media(max-width:700px){body{font-size:16.5px}nav.toc ol{columns:1}}
+</style>
+</head>
+<body class="devtools">
+<div class="wrap">
+<header class="hero"><div class="pills"><span class="pill strong">DevTools</span><span class="pill">9 de octubre de 2026</span><span class="pill">v1</span><span class="pill">Plan, sin resultados todavía</span></div><h1>Análisis de los resultados: mapeo y scraping con DevTools</h1><p class="lede">Registro de lo que sale al hacer a mano el mismo ejercicio con las herramientas del navegador (DevTools, tecla F12), sin escribir un programa. Entra en la comparación con el manual con código y con los agentes.</p><nav class="toc"><b>Contenido</b><ol><li><a href="#objetivo">Para qué sirve este informe</a></li><li><a href="#modo">Cómo trabajamos</a></li><li><a href="#pasos">Checklist de pasos</a></li><li><a href="#esqueleto">Esqueleto de cada etapa</a></li><li><a href="#metricas">Métricas a registrar</a></li><li><a href="#resultados">Resultados por etapa</a></li><li><a href="#decisiones">Decisiones del plan</a></li><li><a href="#versiones">Versiones de este archivo</a></li><li><a href="#conceptos">CONCEPTOS DEL PROCESO IMPORTANTES PARA ENTENDER</a></li></ol></nav></header>
+<main>
+<section id="objetivo"><h2>Para qué sirve este informe</h2>
+<p>Es la forma con DevTools de un ejercicio con tres formas. Se hace a mano en el navegador, sin escribir un programa: sirve para ver el sitio como lo ve el código y para comparar su resultado con el del manual y el de agentes.</p>
+<div class="tablewrap"><table><thead><tr><th>Forma</th><th>Cómo se hace</th><th>Informe</th></tr></thead><tbody><tr><td>Manual con código</td><td>Tú, con Python escrito paso a paso y guiado.</td><td><code>analisis-resultados-mapeo-scraping-manual</code></td></tr><tr><td>Con DevTools</td><td>Tú, a mano en el navegador (F12), sin programa.</td><td><code>analisis-resultados-mapeo-scraping-con-devtools</code></td></tr><tr><td>Con agentes</td><td>Agentes de IA con la API de Claude.</td><td><code>analisis-resultados-mapeo-scraping-con-agentes</code></td></tr></tbody></table></div>
+<div class="tablewrap"><table><thead><tr><th>Documento</th><th>Papel</th></tr></thead><tbody><tr><td>Guía 1 / Guía 2 (<code>documentacion/</code>)</td><td>El <b>cómo</b>: pasos y código. No se tocan.</td></tr><tr><td><code>FUENTES.md</code></td><td>La <b>ficha del sitio</b>: reglas, ritmo y estado de cada etapa.</td></tr><tr><td>Este informe</td><td>El <b>qué salió</b>: cifras, tiempos, fallos y conclusiones de cada etapa. Es el único lugar donde se registran los resultados.</td></tr></tbody></table></div>
+<p>Sitio del ejercicio: <code>https://www.viviendoporelmundo.com/</code>. Antes de tocarlo rige su ficha en <code>FUENTES.md</code>.</p>
+</section>
+<section id="modo"><h2>Cómo trabajamos</h2>
+<p>El proceso es guiado, igual que el manual: Claude indica el paso, tú lo haces en el navegador y cuentas qué viste. Claude no avanza al siguiente paso hasta tener tu resultado, y marca el paso en el checklist.</p>
+<div class="tablewrap"><table><thead><tr><th>Quién</th><th>Qué hace</th></tr></thead><tbody><tr><td>Claude</td><td>Explica qué se va a entender, entrega la línea de consola cuando haga falta e indica en qué pestaña de DevTools se ejecuta y qué debería verse.</td></tr><tr><td>Tú</td><td>Abres DevTools con F12, ejecutas o miras lo indicado y reportas lo que apareció, incluidos los errores completos o una captura.</td></tr><tr><td>Claude</td><td>Anota tu resultado en este informe, marca el paso como hecho, explica en CONCEPTOS lo nuevo y da el siguiente paso.</td></tr></tbody></table></div>
+<div class="note"><b>Nota sobre las reglas</b>Abrir el sitio con tu navegador es una visita humana. Aun así, para que la comparación sea justa y respetuosa, se usa la misma muestra que en las otras formas (3 páginas y luego 10) y un ritmo tranquilo. Los permisos (robots.txt y términos de uso) se reutilizan del informe manual.</div>
+</section>
+<section id="pasos"><h2>Checklist de pasos</h2>
+<p>Los pasos 2 a 4 son el mapeo; el 5, el filtrado; del 6 al 8, el scraping; el 9 y el 10 cierran con la ficha y la muestra.</p>
+<ul class="check"><li class="now"><span class="box"></span><div><b>Paso 1. Abrir DevTools y reconocer sus pestañas</b><span class="tag">en curso</span><span class="meta">Navegador (F12) · Etapa 0 · Qué muestran Elements, Console, Network y Sources.</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 2. Leer los enlaces de la portada con la consola</b><span class="meta">Navegador · Etapa 2 · Cómo se lista lo que enlaza una página.</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 3. Recorrer una categoría y un artículo</b><span class="meta">Navegador · Etapa 2 · Cómo se descubre el sitio de página en página (el rastreo a mano).</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 4. Comparar con el sitemap</b><span class="meta">Navegador · Etapa 2 · Qué páginas aparecen en un mapa y no en el otro.</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 5. Elegir a mano los artículos útiles</b><span class="meta">Navegador · Etapa 3 · Cómo filtra una persona: leyendo y juzgando.</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 6. Inspeccionar el HTML de un artículo con Elements</b><span class="meta">Navegador (F12) · Etapa 4 · Dónde viven el título, el autor, la fecha y el texto.</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 7. Extraer título, autor, fecha y párrafos con la consola</b><span class="meta">Navegador · Etapa 4 · Cómo se lee una página con selectores.</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 8. Ver lo que descarga el navegador con Network</b><span class="meta">Navegador · Etapa 4 · Cuántas peticiones genera una sola página.</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 9. Guardar la ficha y la cita</b><span class="meta">Etapa 5 · Cómo queda un dato citable cuando se guarda a mano.</span></div></li><li class="wait"><span class="box"></span><div><b>Paso 10. Muestra de 3 y luego 10 páginas</b><span class="meta">Navegador · Etapas 4 y 5 · Qué pasa al repetir a escala, con ritmo tranquilo.</span></div></li></ul>
+</section>
+<section id="esqueleto"><h2>Esqueleto de cada etapa</h2>
+<p>Cada etapa del informe lleva los mismos cinco bloques:</p>
+<div class="tablewrap"><table><thead><tr><th>Bloque</th><th>Qué va</th></tr></thead><tbody><tr><td>1. Qué se hizo</td><td>Dos líneas.</td></tr><tr><td>2. Resultado</td><td>Cifras y, si aplica, una muestra corta (nunca el texto completo de un artículo).</td></tr><tr><td>3. Costo</td><td>Tiempo de ejecución, peticiones al sitio y tokens (en manual es cero).</td></tr><tr><td>4. Qué falló o sorprendió</td><td>Errores, casos raros, cosas que no esperábamos.</td></tr><tr><td>5. Conclusión</td><td>Qué se aprendió y qué se haría distinto.</td></tr></tbody></table></div>
+</section>
+<section id="metricas"><h2>Métricas a registrar</h2>
+<p>Las mismas en los tres informes. Al final del informe de agentes se comparan las tres formas, una junto a otra.</p>
+<div class="note"><b>Ojo con las peticiones</b>En DevTools una sola página dispara muchas peticiones (imágenes, scripts, anuncios). Se registran las que muestra la pestaña Network, y no son comparables una a una con las del código, que descarga solo el HTML.</div>
+<div class="tablewrap"><table><thead><tr><th>Métrica</th><th>Cómo se mide</th></tr></thead><tbody><tr><td>URLs encontradas / elegidas</td><td>Cuántas hay en el mapa y cuántas pasan el filtro.</td></tr><tr><td>Páginas leídas</td><td>Cuántas se descargaron y procesaron.</td></tr><tr><td>Tiempo total de ejecución</td><td>De pared, con la espera de 10 s incluida.</td></tr><tr><td>Peticiones al sitio</td><td>Debe respetar el <code>Crawl-delay</code>.</td></tr><tr><td>Costo en tokens (USD)</td><td>Manual: 0. Agentes: lo que marque la consola de la API.</td></tr><tr><td>Campos completos por ficha (%)</td><td>Título, autor, fecha y texto presentes.</td></tr><tr><td>Páginas que no eran artículo y se colaron</td><td>Falsos positivos del filtro.</td></tr><tr><td>Tiempo humano</td><td>Escribir código o prompts, y revisar el resultado.</td></tr></tbody></table></div>
+</section>
+<section id="resultados"><h2>Resultados por etapa</h2>
+<div class="stage" id="etapa-0"><h3>Etapa 0. Preparación</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Paso 1: abrir DevTools y reconocer sus pestañas. No hay que instalar nada: viene en Chrome.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-1"><h3>Etapa 1. Permisos (reutiliza el manual)</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Se reutiliza la etapa 1 del informe manual: robots.txt verificado y términos de uso revisados el 9 oct 2026.</td></tr><tr><td>Resultado</td><td>Ver el informe manual, etapa 1. Resumen: luz verde con 6 rutas prohibidas y <code>Crawl-delay: 10</code>; los términos no prohíben expresamente el scraping, pero rigen los derechos de autor.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-2"><h3>Etapa 2. Mapeo</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Pasos 2 a 4: enlaces de la portada, recorrido de una categoría y un artículo, y comparación con el sitemap.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-3"><h3>Etapa 3. Filtrado</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Paso 5: elegir a mano los artículos útiles.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-4"><h3>Etapa 4. Scraping</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Pasos 6, 7, 8 y 10: inspección del HTML, extracción con la consola, Network y muestra de 3 y luego 10 páginas.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+<div class="stage" id="etapa-5"><h3>Etapa 5. Archivo y reescritura</h3><div class="tablewrap" style="border:0;margin:0"><table><tbody><tr><td>Qué se hizo</td><td>Paso 9: ficha con cita. El artículo propio va aparte, no dentro del informe.</td></tr><tr><td>Resultado</td><td>Pendiente.</td></tr><tr><td>Costo (tiempo, peticiones, tokens)</td><td>Pendiente.</td></tr><tr><td>Qué falló o sorprendió</td><td>Pendiente.</td></tr><tr><td>Conclusión</td><td>Pendiente.</td></tr></tbody></table></div></div>
+</section>
+<section id="decisiones"><h2>Decisiones del plan</h2>
+<div class="tablewrap"><table><thead><tr><th>Decisión</th><th>Valor</th></tr></thead><tbody><tr><td>Tres formas</td><td>Manual con código, DevTools y agentes: mismo sitio, mismas etapas y mismas métricas, para comparar.</td></tr><tr><td>Etapa 1 reabierta</td><td>Sí: los términos de uso pendientes se cierran antes de extraer contenido.</td></tr><tr><td>Etapa 0 de preparación</td><td>Es un paso propio.</td></tr><tr><td>Ubicación</td><td><code>analisis-resultados-scraping-mapeo/</code>, con copia en <code>.md</code>.</td></tr><tr><td>Muestra de la etapa 4</td><td>3 páginas y luego 10.</td></tr><tr><td>Contenido de terceros</td><td>El informe lleva cifras y citas cortas, nunca el texto completo de los artículos.</td></tr></tbody></table></div>
+</section>
+<section id="versiones"><h2>Versiones de este archivo</h2>
+<div class="tablewrap"><table><thead><tr><th>Versión</th><th>Fecha</th><th>Archivo</th><th>Qué contiene</th></tr></thead><tbody><tr><td>v1</td><td>9 de octubre de 2026</td><td><code>analisis-resultados-mapeo-scraping-con-devtools_2026-10-09_v1.html</code></td><td>Plan: modo de trabajo, checklist de 10 pasos, esqueleto, métricas, resultados pendientes y sección CONCEPTOS (qué es DevTools, la consola y la lectura de enlaces).</td></tr></tbody></table></div>
+<p>Cada vez que se cierre un paso o una etapa se actualiza este informe y se guarda una versión nueva con la fecha en el nombre.</p>
+</section>
+<section id="conceptos" class="banda"><h2>CONCEPTOS DEL PROCESO IMPORTANTES PARA ENTENDER</h2>
+<p>Esta sección es para aprender, no para registrar resultados. Está escrita para alguien que empieza, con palabras simples y ejemplos. Crece con cada paso. Los conceptos de permisos (robots.txt, términos de uso, derechos de autor) están explicados en el informe manual y valen igual aquí. La etiqueta amarilla al frente de cada título indica a qué etapa y paso del proceso pertenece: haz clic en ella para ir a esa etapa, y el recuadro «Para qué» explica por qué se hizo eso y cuál es su objetivo.</p>
+<h3 id="concepto-1"><a class="parte" href="#etapa-0" title="Ir a esa etapa">Etapa 0 · Paso 1</a>1. Qué es DevTools</h3>
+<div class="paraque"><b>Para qué</b>Ver por dentro cómo está hecha una página, sin escribir un programa.</div>
+<p><b>DevTools</b> (herramientas para desarrolladores) es un panel que trae el navegador Chrome. Se abre con la tecla <b>F12</b> (o clic derecho sobre la página y «Inspeccionar»). Muestra por dentro cómo está hecha la página que estás viendo: su código, lo que descarga y los mensajes que genera.</p>
+<p>Analogía: una página web es como una casa vista desde la calle; DevTools son los rayos X que dejan ver las paredes, las tuberías y los cables. No cambia la casa: solo la muestra.</p>
+<div class="tablewrap"><table><thead><tr><th>Pestaña</th><th>Qué muestra</th><th>Para qué la usamos</th></tr></thead><tbody><tr><td><b>Elements</b></td><td>El HTML de la página, ordenado como un árbol de etiquetas.</td><td>Encontrar dónde vive el título, el autor, la fecha y el texto de un artículo.</td></tr><tr><td><b>Console</b></td><td>Una línea de comandos donde se escribe JavaScript que se ejecuta sobre la página abierta, y los mensajes de error o aviso de la página.</td><td>Leer datos de la página con una línea de código, por ejemplo la lista de enlaces.</td></tr><tr><td><b>Network</b></td><td>Cada archivo que el navegador descarga al cargar la página: HTML, imágenes, scripts, anuncios.</td><td>Ver cuántas peticiones genera una sola página.</td></tr><tr><td><b>Sources</b></td><td>Los archivos de código de la página.</td><td>No la usamos por ahora.</td></tr></tbody></table></div>
+<h3 id="concepto-2"><a class="parte" href="#etapa-2" title="Ir a esa etapa">Etapa 2 · Paso 2</a>2. Qué es la consola y cómo leer los enlaces de una página</h3>
+<div class="paraque"><b>Para qué</b>Sacar la lista de enlaces de una página con una sola línea: es mapear a mano.</div>
+<p>La consola recibe una línea de JavaScript y la ejecuta sobre la página que tienes abierta. Esta lista los enlaces internos de la página:</p>
+<pre class="cod">const enlaces = [...new Set(
+  [...document.querySelectorAll(&#x27;a[href]&#x27;)]
+    .map(a =&gt; a.href.split(&#x27;#&#x27;)[0])
+    .filter(h =&gt; new URL(h).hostname.endsWith(&#x27;viviendoporelmundo.com&#x27;))
+)].sort();
+console.log(enlaces.length);
+console.table(enlaces);</pre>
+<p>Cómo se lee, de adentro hacia afuera:</p>
+<div class="tablewrap"><table><thead><tr><th>Parte</th><th>Qué hace</th></tr></thead><tbody><tr><td><code>document.querySelectorAll('a[href]')</code></td><td>Toma todos los enlaces de la página (<code>a</code> es la etiqueta de enlace y <code>href</code> es la dirección a la que apunta).</td></tr><tr><td><code>a.href.split('#')[0]</code></td><td>Quita lo que va después de <code>#</code> (el ancla), porque apunta al mismo lugar de la misma página.</td></tr><tr><td><code>.filter(... endsWith('viviendoporelmundo.com'))</code></td><td>Se queda solo con los enlaces <b>internos</b> y descarta los de afuera (YouTube, redes, Amazon).</td></tr><tr><td><code>new Set(...)</code></td><td>Elimina los repetidos.</td></tr><tr><td><code>.sort()</code></td><td>Los ordena alfabéticamente.</td></tr><tr><td><code>console.log(enlaces.length)</code></td><td>Imprime cuántos hay.</td></tr><tr><td><code>console.table(enlaces)</code></td><td>Los muestra en una tabla.</td></tr></tbody></table></div>
+<div class="note"><b>Aviso de seguridad</b>Chrome bloquea el pegado en la consola como protección: si sale un aviso, hay que escribir <code>allow pasting</code> y pulsar Enter. Solo se pega código cuya lógica se entienda. Este solo lee la página, no modifica nada.</div>
+<h3 id="concepto-3"><a class="parte" href="#etapa-2" title="Ir a esa etapa">Etapa 2 · Paso 3</a>3. Por qué DevTools mapea una página y no todo el dominio</h3>
+<div class="paraque"><b>Para qué</b>Entender el límite de esta forma de mapear y por qué conviene compararla con el sitemap.</div>
+<p>Cada ejecución de la línea anterior devuelve los enlaces de <b>la página que tienes abierta</b>. Para cubrir el sitio tendrías que repetirla en cada página que descubras. Eso es exactamente lo que hace un rastreo («crawl»): seguir enlaces de página en página. Con DevTools lo haces tú a mano; con código se automatiza.</p>
+<div class="tablewrap"><table><thead><tr><th>Forma de mapear</th><th>Alcance</th><th>Qué ve</th></tr></thead><tbody><tr><td>Sitemap</td><td>Todo el dominio de una vez</td><td>La lista oficial que el dueño decidió publicar.</td></tr><tr><td>DevTools</td><td>Una página por vez</td><td>Lo que el sitio muestra: menús, categorías, pie de página.</td></tr><tr><td>Rastreo con código</td><td>Cientos de páginas, con espera</td><td>Lo mismo que DevTools, automático.</td></tr></tbody></table></div>
+<p>Por eso conviene <b>comparar</b> el resultado de DevTools con el del sitemap: una página puede estar enlazada pero no aparecer en el sitemap, o al revés.</p>
+<h3 id="concepto-4"><a class="parte" href="#etapa-1" title="Ir a esa etapa">Etapa 1 · Permisos</a>4. Una visita tuya no es una visita de un bot</h3>
+<div class="paraque"><b>Para qué</b>Saber qué reglas aplican cuando entra una persona y por qué aun así se mantiene un ritmo tranquilo.</div>
+<p>Abrir el sitio con tu navegador y mirar su código es una visita humana normal. El robots.txt y la espera de 10 segundos son reglas para <b>programas</b>. Aun así, para que la comparación entre las tres formas sea justa y respetuosa, aquí se usa la misma muestra (3 páginas y luego 10) y un ritmo tranquilo. Si algún paso se automatizara, volverían a regir las reglas del robots.txt.</p>
+<h3 id="concepto-5"><a class="parte" href="#etapa-0" title="Ir a esa etapa">Etapa 0 · Paso 1</a>5. Los mensajes de error en rojo de la consola</h3>
+<div class="paraque"><b>Para qué</b>No asustarse con mensajes que no tienen que ver con lo que hacemos.</div>
+<p>Al abrir la consola en una página con publicidad aparecen errores en rojo y avisos en amarillo (por ejemplo <code>ERR_NAME_NOT_RESOLVED</code> o <code>generate_204</code>). Son de los scripts de terceros de la propia página (anuncios, YouTube, estadísticas). No tienen que ver con lo que hacemos y se ignoran.</p>
+</section>
+</main>
+<footer>Análisis de los resultados: mapeo y scraping con DevTools · v1 · 9 de octubre de 2026. Proyecto Mapeo de dominio y Scraping.</footer>
+</div>
+</body>
+</html>

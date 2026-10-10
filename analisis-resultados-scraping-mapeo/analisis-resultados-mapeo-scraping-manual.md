@@ -46,8 +46,8 @@ Los pasos 1 a 7 son el mapeo; del 9 al 11, el scraping. El filtrado (paso 8) es 
 - [x] **Paso 2. Leer los términos de uso** — Navegador · Etapa 1 · Qué permiso hay más allá del robots.txt.
 - [x] **Paso 3. Leer el robots.txt con código** — Terminal · Etapa 1 · Cómo un programa pregunta si puede entrar.
 - [x] **Paso 4. Abrir el `sitemap_index.xml`** — Navegador · Etapa 2 · Cómo se ve un índice de mapas.
-- [ ] **Paso 5. Descargar una página con código** *(en curso)* — Terminal · Etapa 2 · Qué es una petición HTTP y el HTML crudo.
-- [ ] **Paso 6. Leer el índice y los mapas hijos** — Terminal · Etapa 2 · Cómo se pasa de un índice a la lista de URLs.
+- [x] **Paso 5. Descargar una página con código** — Terminal · Etapa 2 · Qué es una petición HTTP y el HTML crudo.
+- [ ] **Paso 6. Leer el índice y los mapas hijos** *(en curso)* — Terminal · Etapa 2 · Cómo se pasa de un índice a la lista de URLs.
 - [ ] **Paso 7. Guardar las URLs en SQLite** — Terminal · Etapa 2 · Qué es una base de datos y cómo se evita duplicar.
 - [ ] **Paso 8. Filtrar las URLs** — Terminal · Etapa 3 · Dónde fallan las reglas fijas.
 - [ ] **Paso 9. Inspeccionar el HTML de un artículo** — Navegador (F12) · Etapa 4 · La estructura de una página.
@@ -114,10 +114,10 @@ Las mismas en los tres informes. Al final del informe de agentes se comparan las
 
 | Bloque | Registro |
 |---|---|
-| Qué se hizo | Paso 4 hecho (9 oct 2026): el índice del sitemap y `post-sitemap.xml` abiertos en el navegador. Pasos 5 a 7 pendientes: descarga con código, lectura de los mapas hijos y tabla `urls`. |
-| Resultado | Índice (`http://viviendoporelmundo.com/sitemap_index.xml`): generado por Yoast SEO, con **2 mapas hijos**, `post-sitemap.xml` (entradas) y `page-sitemap.xml` (páginas), ambos en `https://www.…`. `post-sitemap.xml`: **244 URLs** según su propio encabezado (el paso 6 las recontará con código), con fechas de modificación desde 2015-10-26 hasta 2026-06-20, ordenadas de la más antigua a la más reciente, y una columna con el número de imágenes por página (de 1 a 264). La fecha del índice (2026-06-20 04:46) coincide exactamente con la de la última entrada del mapa. `page-sitemap.xml`: todavía sin contar (lo hará el paso 6). No hay mapa de categorías ni de etiquetas. |
-| Costo (tiempo, peticiones, tokens) | Paso 4: tres visitas con el navegador (índice y mapas), sin programa. 0 tokens. |
-| Qué falló o sorprendió | Tres cosas. 1) No hay mapa de categorías: el sitemap no es el plano completo. 2) Ninguna dirección tiene carpeta (`/blog/…`): todas cuelgan de la raíz, así que las reglas de la guía (`PATRONES_UTILES`) descartarían todas las páginas. 3) `Last Mod.` no es la fecha de publicación: hay bloques de decenas de entradas con la misma fecha de edición (21 al 26 de julio de 2021) y otro de 9 entradas del 20 de junio de 2026. |
+| Qué se hizo | Pasos 4 y 5 hechos (9 oct 2026): el índice del sitemap y `post-sitemap.xml` abiertos en el navegador, y la portada descargada con código (`pedir()` y `descargar()` en `scraper.py`, probadas con `probar_descarga.py`). Pasos 6 y 7 pendientes: lectura de los mapas hijos y tabla `urls`. |
+| Resultado | Índice (`http://viviendoporelmundo.com/sitemap_index.xml`): generado por Yoast SEO, con **2 mapas hijos**, `post-sitemap.xml` (entradas) y `page-sitemap.xml` (páginas), ambos en `https://www.…`. `post-sitemap.xml`: **244 URLs** según su propio encabezado (el paso 6 las recontará con código), con fechas de modificación desde 2015-10-26 hasta 2026-06-20, ordenadas de la más antigua a la más reciente, y una columna con el número de imágenes por página (de 1 a 264). La fecha del índice (2026-06-20 04:46) coincide exactamente con la de la última entrada del mapa. `page-sitemap.xml`: todavía sin contar (lo hará el paso 6). No hay mapa de categorías ni de etiquetas. Paso 5 (portada, `http://viviendoporelmundo.com/`): código 200, tipo `text/html; charset=UTF-8`, 245.915 bytes de HTML, 1,86 s de respuesta; el sitio redirigió con un 301 a `https://www.viviendoporelmundo.com/`. El HTML crudo trae 136 etiquetas `<a href>` (conteo aproximado con expresión regular). Título: «Viviendo por el mundo - Fórmate como Nómada Digital y Viaja todo lo que quieras». |
+| Costo (tiempo, peticiones, tokens) | Paso 4: tres visitas con el navegador, sin programa. Paso 5: una página pedida con código; con la redirección fueron 2 peticiones al sitio, tras 10 s de espera, y la respuesta tardó 1,86 s. 0 tokens. |
+| Qué falló o sorprendió | Tres cosas. 1) No hay mapa de categorías: el sitemap no es el plano completo. 2) Ninguna dirección tiene carpeta (`/blog/…`): todas cuelgan de la raíz, así que las reglas de la guía (`PATRONES_UTILES`) descartarían todas las páginas. 3) `Last Mod.` no es la fecha de publicación: hay bloques de decenas de entradas con la misma fecha de edición (21 al 26 de julio de 2021) y otro de 9 entradas del 20 de junio de 2026. 4) Pedir la dirección con `http://` y sin `www` provocó una redirección 301: una sola página fueron dos peticiones, y el código sigue esa redirección sin esperar entre las dos, así que conviene pedir ya la dirección final (`https://www…`). 5) El inicio del HTML crudo es código (comentarios para navegadores antiguos, metadatos y scripts), no texto de artículo, y el título de la portada presenta el sitio como formación de nómada digital, lo que apunta a contenido comercial junto a los artículos de viaje. |
 | Conclusión | Pendiente. |
 
 
@@ -579,4 +579,700 @@ Este mapa es la lista de las **entradas** (los artículos) del blog. Según su p
 > **Aviso para el filtrado** Las reglas de la guía (`PATRONES_UTILES = ("/blog/", "/noticias/", "/articulo/")`) buscan carpetas dentro de la dirección. En este sitio ninguna dirección las tiene, así que esas reglas descartarían todo. Es un ejemplo claro de por qué las reglas fijas no sirven igual en todos los sitios, y de lo que un agente hará distinto: leer el nombre y decidir con criterio.
 
 **La columna Images** va de 1 a 264. Sirve de pista del tamaño de una guía: una entrada con 264 imágenes es una guía muy larga. Recuerda que las fotos tienen derechos de autor: se cuentan, no se descargan.
+
+
+## [Etapa 2 · Paso 5] 16. Descargar una página con código (paso 5)
+
+> **Para qué:** Ver qué recibe un programa cuando pide una página, la respuesta del sitio y el HTML crudo, antes de limpiarlo. Es la base de todo lo que viene: leer los mapas y leer los artículos.
+
+**Qué es una petición HTTP.** Cuando tu navegador abre una página, le *pide* esa página a un servidor y el servidor *responde*. El código hace exactamente lo mismo, con la librería `requests`. Analogía: un mensajero va a una dirección, pide un paquete y trae de vuelta el paquete y una nota con cómo salió todo. La respuesta tiene tres partes:
+
+| Parte de la respuesta | Qué es | Lo que salió con la portada |
+|---|---|---|
+| Código de estado | Un número que dice cómo salió la petición. | `200`, que significa «todo bien». |
+| Cabeceras | La nota del mensajero: datos sobre el paquete, como su tipo. | `Content-Type: text/html; charset=UTF-8`, es decir, una página HTML con codificación UTF-8, que guarda bien las tildes y las eñes. |
+| Cuerpo | El paquete: el contenido de la página. | 245.915 bytes (unos 240 KB) de HTML, en 1,86 segundos. |
+
+**Los códigos de estado que más se ven:**
+
+| Código | Significa | Qué hacer |
+|---|---|---|
+| 200 | Todo bien. | Seguir. |
+| 301 | La página se mudó a otra dirección y te dice cuál. | Seguir la redirección (`requests` lo hace solo). |
+| 403 | Prohibido: el sitio te cierra la puerta. | Detenerse. No intentar esquivarlo. |
+| 404 | Esa página no existe. | Saltarla y anotarla. |
+| 429 | Demasiadas peticiones seguidas. | Esperar más. Es la señal de que vamos muy rápido. |
+| 500 | El servidor falló. | Reintentar más tarde, sin insistir. |
+
+**La redirección que vimos.** Pedimos `http://viviendoporelmundo.com/` y el sitio respondió `301` apuntando a `https://www.viviendoporelmundo.com/`: es como una dirección antigua con un cartel de «nos mudamos a…». El código siguió el cartel y terminó en la página correcta. Lo que hay que tener en cuenta: una sola página costó **dos peticiones**, y el código las hace seguidas, sin esperar entre ellas. Para respetar el ritmo al pie de la letra, lo mejor es pedir ya la dirección final (`https://www…`). Los mapas hijos del sitemap ya están en esa forma.
+
+**Qué hace el código, paso a paso** (`pedir()` en `scraper.py`):
+
+1. Pregunta a `puede_visitar()` si el robots.txt deja entrar a esa dirección. Si no, se detiene.
+2. Espera lo que pide el sitio (`espera_del_sitio()`: 10 segundos).
+3. Pide la página con `requests.get(...)`, presentándose con el nombre del bot y con un tope de 20 segundos (`timeout=20`) para no quedarse esperando para siempre si el servidor no responde.
+4. Si la respuesta es un error (códigos 4xx o 5xx), `raise_for_status()` lo detecta y el código devuelve `None` en vez de seguir con una página rota.
+5. Si todo va bien, devuelve la respuesta completa. `descargar()` la usa, descarta lo que no sea HTML (imágenes, PDF) y corrige la codificación si hiciera falta.
+
+**El nombre del bot.** Cada petición lleva una cabecera `User-Agent` con el nombre del bot y un correo de contacto, para que el dueño del sitio sepa quién lo visita y a quién escribir si el bot le molesta. Es presentarse con honestidad en vez de hacerse pasar por un navegador. También se manda `Accept-Language`, que dice que preferimos contenido en español.
+
+**Qué es el HTML crudo.** Es el texto tal como lo recibe el programa: etiquetas, comentarios y scripts, todo mezclado. Los primeros 500 caracteres de la portada son un buen ejemplo: `<!DOCTYPE html>`, comentarios para navegadores muy antiguos (Internet Explorer 7 y 8), `<meta charset>` y un `<script>`. Nada de eso es texto de artículo. Por eso existe el paso 10, que limpia el HTML y se queda solo con el texto principal.
+
+> **Qué obtienes** Una función `pedir()` que descarga una página de forma educada (con permiso, espera y nombre) y devuelve todo lo que respondió el sitio, y una función `descargar()` que devuelve solo el texto HTML. Con ellas el paso 6 puede leer los mapas del sitemap.
+
+
+---
+
+# CÓDIGOS DE PROGRAMACIÓN UTILIZADOS
+
+Esta sección reúne cada pieza de código que se ha usado en el ejercicio, explicada para alguien que empieza. Todo está escrito en **Python**. Cada pieza trae: la etapa y el paso donde se usa (etiqueta amarilla), su «Para qué», el código, la lógica paso a paso, un ejemplo y la comparación con otras formas de hacerlo. Los códigos se muestran sin los comentarios largos; el archivo completo es `scraper.py`. Antes de las piezas hay un repaso de los conceptos básicos de programación y de las librerías; y cada pieza trae «Si lo hiciera una persona», los conceptos que aparecen y lo que hace cada librería, todo con ejemplos mínimos.
+
+> **Cómo leerla** Las funciones (`puede_visitar`, `pedir`…) no se ejecutan solas: las llaman otros códigos. Lo que sí se ejecuta desde la terminal son los dos scripts de prueba, `probar_robots.py` y `probar_descarga.py`. Se ejecutan en la terminal, desde la carpeta del proyecto: `.venv\Scripts\python.exe probar_robots.py`.
+
+
+## [General · Todas las etapas] 0. Antes de empezar: los conceptos básicos de programación
+
+> **Para qué:** Tener a mano las ideas básicas que aparecen en todos los códigos, para poder seguir la lógica aunque nunca hayas programado. Cada una trae un ejemplo mínimo.
+
+Programar es darle al computador instrucciones muy precisas, paso a paso, como una receta de cocina. Estas son las piezas con las que se escriben:
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Variable | Un nombre que guarda un valor, como una etiqueta en una caja. | `edad = 30` guarda el 30; desde ahí, `edad` vale 30. |
+| Constante | Una variable que no se piensa cambiar. Por costumbre se escribe en MAYÚSCULAS. | `USER_AGENT = "MiBot/1.0"`. |
+| Texto (`str`) | Letras entre comillas. | `"hola"`. |
+| Número (`int` y `float`) | Entero, o con decimales. | `10` y `10.0`. |
+| Verdadero o falso (`bool`) | Solo dos valores: `True` y `False`. | `5 > 3` da `True`. |
+| Nada (`None`) | La ausencia de valor. | Un buscador que no halla nada devuelve `None`. |
+| Lista | Varios valores en orden, entre corchetes. | `rutas = ["/", "/wp-admin/"]`; `rutas[0]` es `"/"`. |
+| Diccionario | Pares nombre-valor, entre llaves. | `{"nombre": "Ana", "edad": 30}`; `persona["nombre"]` da `"Ana"`. |
+| Función (`def`) | Una receta con nombre: recibe datos, hace algo y devuelve un resultado con `return`. | `def doble(n): return n * 2`; `doble(4)` da `8`. |
+| Parámetro y valor por defecto | Los datos que recibe la receta; el valor por defecto se usa si no se da otro. | `def saludar(nombre="amigo")`; `saludar()` usa `"amigo"`. |
+| Condicional (`if`, `elif`, `else`) | Decidir según una condición. | `if edad >= 18: print("mayor")`. |
+| Bucle `for` | Repetir algo para cada elemento. | `for r in rutas: print(r)` imprime cada ruta. |
+| Cadena con valores (f-string) | Un texto que mete el valor de variables entre llaves. | Con `nombre = "Ana"`, `f"Hola {nombre}"` da `Hola Ana`. |
+| `try` y `except` | Intentar algo y, si falla, hacer otra cosa en vez de romperse. | `try: 10 / 0` y `except ZeroDivisionError: print("no se puede")`. |
+| `import` | Traer funciones de una librería o de otro archivo. | `import time`; `from scraper import pedir`. |
+
+
+## [General · Todas las etapas] Las librerías del proyecto, en simple
+
+> **Para qué:** Saber qué hace cada librería con una imagen sencilla, antes de ver el código que la usa. Una librería es código que otras personas ya escribieron y que se puede usar sin volver a programarlo.
+
+| Librería | Qué es, en simple | Ejemplo mínimo | Dónde se usa |
+|---|---|---|---|
+| `requests` | El mensajero: hace desde el programa lo que hace tu navegador al abrir una dirección. | `r = requests.get("https://x.com")`; `r.status_code` da `200` y `r.text` trae la página. | Etapa 1 · Paso 3 y Etapa 2 · Paso 5 |
+| `urllib.robotparser` | Un lector de carteles: le das el robots.txt y responde si puedes entrar a una ruta. | `rp.can_fetch("MiBot", "https://x.com/wp-admin/")` da `False`. | Etapa 1 · Paso 3 |
+| `urllib.parse` | Una navaja para partir direcciones en sus partes. | `urlparse("https://x.com/a/b")` da protocolo `https`, dominio `x.com` y ruta `/a/b`. | Etapa 1 · Paso 3 |
+| `functools` | Herramientas para funciones. Aquí se usa `lru_cache`, que le da memoria a una función. | Pedir un archivo una sola vez, aunque se pregunte mil veces. | Etapa 1 · Paso 3 |
+| `time` | Relojes y esperas. | `time.sleep(10)` pausa diez segundos. | Etapa 2 · Paso 5 |
+| `re` | Búsqueda de patrones en textos. | `re.findall(r"<a ", texto)` encuentra cada etiqueta de enlace. | Etapa 2 · Paso 5, en el script de prueba |
+| `beautifulsoup4` y `lxml` | Leen el HTML y permiten buscar etiquetas dentro. Todavía no se usan. | Pedir «todos los párrafos dentro del artículo». | Paso 9 y 10 (pendiente) |
+| `trafilatura` | Deja solo el texto principal de un artículo. Todavía no se usa. | Quedarse con la carne y tirar el empaque. | Paso 10 (pendiente) |
+| `sqlite3` | Una base de datos que vive en un archivo. Viene con Python. Todavía no se usa. | Guardar las URLs sin repetirlas. | Paso 7 (pendiente) |
+
+
+## [Etapa 0 · Paso 1] 1. Comandos del entorno
+
+> **Para qué:** Preparar las herramientas del proyecto en una caja propia, para que lo que se instale no se mezcle con otros proyectos ni con el Python del computador. Va en la etapa 0 porque nada de lo demás funciona sin esto.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Comprar una caja de herramientas vacía para este proyecto. | `python -m venv .venv` crea la carpeta `.venv`. |
+| Abrir esa caja y ponerla sobre la mesa de trabajo. | `.venv\Scripts\activate` entra al entorno; la terminal muestra `(.venv)`. |
+| Meter dentro las herramientas que se van a usar. | `pip install ...` descarga e instala las cuatro librerías. |
+| Probar que cada herramienta abre y funciona. | El último comando intenta usar las cuatro y escribe `Todo instalado`. |
+
+```
+python --version
+python -m venv .venv
+.venv\Scripts\activate
+pip install requests beautifulsoup4 lxml trafilatura
+python -c "import requests, bs4, lxml, trafilatura; print('Todo instalado')"
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `python --version` confirma que Python responde y qué versión es (aquí, 3.12.10).
+2. `python -m venv .venv` crea la carpeta `.venv`: una copia limpia de Python.
+3. `.venv\Scripts\activate` entra a esa caja. Se nota porque la línea de la terminal empieza con `(.venv)`.
+4. `pip install ...` descarga las cuatro librerías dentro de la caja.
+5. La última línea intenta usar las cuatro; si imprime `Todo instalado`, funcionan.
+
+**Ejemplo:** después de activar el entorno, `pip install requests` instala `requests` solo en este proyecto. Otro proyecto con su propio `.venv` puede usar otra versión sin que se pisen.
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Terminal | Una ventana donde se escriben órdenes en texto y el computador las ejecuta. | Escribir `python --version` y pulsar Enter muestra la versión. |
+| Comando | Una orden de una línea. | `pip install requests` ordena instalar `requests`. |
+| Librería | Código ya escrito por otras personas que se instala para no empezar de cero. | `requests` ya sabe pedir páginas; no hay que programarlo. |
+| `pip` | El instalador de librerías de Python. | `pip list` muestra las que hay instaladas. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Instalar las librerías en el Python general del computador | Se mezclan las versiones de todos los proyectos y es difícil saber qué usa cada uno. |
+| Usar Conda, Poetry o uv | Son más herramientas que aprender. Para un proyecto pequeño, `venv` y `pip` vienen con Python y alcanzan; otro proyecto puede elegir distinto. |
+| Copiar el código de las librerías dentro del proyecto | Pesa mucho y no se actualiza. |
+
+
+## [Etapa 1 · Paso 3] 2. El nombre del bot: `USER_AGENT`
+
+> **Para qué:** Presentarnos con honestidad ante el sitio: quiénes somos y cómo contactarnos. Se usa primero para leer el robots.txt con nuestro nombre, y después en cada descarga.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Al llegar a una oficina, decir tu nombre y dejar una tarjeta con tu teléfono. | El programa se presenta con `USER_AGENT`: nombre, versión y correo de contacto. |
+| El recepcionista anota quién visitó y, si hay un problema, puede llamarte. | El sitio guarda el nombre en sus registros y puede escribir al correo. |
+
+```
+USER_AGENT = "MiBotInvestigacion/1.0 (contacto: CORREO)"
+```
+
+En el código real, `CORREO` es el correo de contacto elegido para el proyecto.
+
+**Cómo funciona:** es un texto guardado con un nombre para reutilizarlo. Tiene la forma `nombre/versión (contacto)`. Dos partes del código lo leen: la que descarga el robots.txt y la que pide páginas. Además, `can_fetch` lo usa para buscar el bloque del robots.txt que lleve ese nombre (como no hay ninguno, cae en el bloque `*`).
+
+| Qué ve el sitio | Con nuestro nombre | Con el nombre por defecto |
+|---|---|---|
+| Cabecera `User-Agent` | `MiBotInvestigacion/1.0 (contacto: …)` | `python-requests/2.34.2` |
+| ¿Sabe quién lo visita? | Sí, y puede escribir si hay un problema. | No. |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Constante | Un nombre que guarda un valor que no se piensa cambiar. Por costumbre va en MAYÚSCULAS. | `USER_AGENT = "MiBot/1.0"` guarda el nombre una vez y el resto del código lo reutiliza. |
+| Texto (`str`) | Letras entre comillas. | `"hola"` es un texto; `hola` sin comillas sería un nombre. |
+| Escribir un valor en un solo sitio | Si cambia, se cambia una vez y no en veinte lugares. | Cambiar el correo en `USER_AGENT` actualiza todas las peticiones. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Dejar el nombre por defecto | No dice quién eres, y algunos sitios lo bloquean por sospechoso. |
+| Fingir ser un navegador (Chrome) | Es engañar al sitio. El robots.txt existe justamente para que los bots se identifiquen y se les pida un trato. |
+| Un nombre sin correo | El dueño no tendría cómo avisarte antes de bloquearte. |
+
+
+## [Etapa 1 · Paso 3] 3. Arreglar el texto del robots.txt: `_normalizar`
+
+> **Para qué:** Evitar que el lector de Python pierda reglas por una línea en blanco. Sin esta función, tres rutas prohibidas salían como permitidas.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Leer el texto línea por línea. | `for i, linea in enumerate(lineas)` recorre cada línea con su número. |
+| Si la línea tiene letras, copiarla tal cual. | `if linea: resultado.append(linea)`. |
+| Si la línea está vacía, mirar cuál es la siguiente que tenga letras. | `siguiente = next(...)` busca la próxima línea con texto. |
+| Si esa siguiente empieza un grupo nuevo (`User-agent`), dejar el espacio; si no, taparlo. | `if siguiente.lower().startswith(...)` decide si conserva la línea vacía. |
+
+```
+def _normalizar(texto: str) -> list[str]:
+    lineas = [linea.strip() for linea in texto.splitlines()]
+    resultado = []
+    for i, linea in enumerate(lineas):
+        if linea:
+            resultado.append(linea)
+        else:
+            siguiente = next((x for x in lineas[i + 1:] if x), "")
+            if siguiente.lower().startswith("user-agent"):
+                resultado.append("")
+    return resultado
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `texto.splitlines()` parte el texto en líneas, y `.strip()` quita los espacios de los bordes.
+2. Se recorre cada línea. Si no está vacía, se conserva.
+3. Si está vacía, se mira cuál es **la siguiente línea con texto** (`next(...)`).
+4. Si esa siguiente línea empieza por `user-agent`, la línea en blanco separaba dos bloques y se conserva.
+5. Si no, la línea en blanco estaba partiendo un bloque por la mitad y se descarta.
+
+**Ejemplo.** A la izquierda lo que llega; a la derecha lo que devuelve la función:
+
+| Entrada | Salida |
+|---|---|
+| `Disallow: /a/` | `Disallow: /a/` |
+| (línea en blanco)  ← parte el bloque | *(se descarta)* |
+| `Disallow: /b/` | `Disallow: /b/` |
+| (línea en blanco)  ← antes viene `User-agent` | (línea en blanco, se conserva) |
+| `User-agent: Googlebot` | `User-agent: Googlebot` |
+
+Con la entrada original, el lector de Python habría ignorado `Disallow: /b/`. Con la salida, la ve.
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Función (`def`) | Una receta con nombre: recibe datos, hace algo y devuelve un resultado con `return`. | `def doble(n): return n * 2`; `doble(4)` devuelve `8`. |
+| Lista | Varios valores en orden, entre corchetes. | `resultado = []` es una lista vacía; `resultado.append("a")` le agrega `"a"`. |
+| Bucle `for` | Repetir algo para cada elemento de una lista. | `for x in [1, 2, 3]: print(x)` imprime 1, 2 y 3. |
+| Condicional `if` | Hacer algo solo si se cumple una condición. | `if edad >= 18: print("mayor")`. |
+| Texto vacío cuenta como «no» | En una condición, un texto vacío vale como falso y uno con letras como verdadero. | `if linea:` solo entra si la línea tiene texto. |
+| Métodos de texto | Acciones que se piden a un texto con un punto. | `"  hola ".strip()` da `"hola"`; `"ABC".lower()` da `"abc"`; `"user-agent: *".startswith("user")` da `True`. |
+| Lista por comprensión | Una línea que hace algo con cada elemento y junta los resultados. | `[x.strip() for x in [" a ", " b "]]` da `["a", "b"]`. |
+| `enumerate` | Recorre una lista dando también el número de cada elemento. | `for i, x in enumerate(["a", "b"])` da `0 a` y luego `1 b`. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Usar el lector de Python sin arreglar el texto | Es lo que hace la guía y no funciona con este sitio: comprobado, tres rutas prohibidas salían como permitidas. |
+| Escribir a mano la lista de rutas prohibidas | Se desactualiza cuando el sitio cambie su robots.txt y no sirve para otros sitios. |
+| Instalar otra librería de robots.txt | Existen otras y podrían leer el archivo de otra manera, pero no se probaron. Se eligió corregir el texto porque el lector de Python ya viene con el lenguaje (nada que instalar) y el arreglo cabe en doce líneas. |
+
+
+## [Etapa 1 · Paso 3] 4. Descargar y leer el robots.txt: `_robots`
+
+> **Para qué:** Traer el robots.txt de un sitio, con nuestro nombre, y dejarlo interpretado para poder consultarlo. Las demás funciones de permisos se apoyan en esta.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Ir a la recepción del sitio y pedir el cartel de reglas, presentándose con tu nombre. | `requests.get(...robots.txt, headers=...)`. |
+| Si no te lo quieren dar (403), asumir que no puedes pasar a nada. | `rp.disallow_all = True`. |
+| Si no existe el cartel (404), asumir que no hay reglas. | `rp.allow_all = True`. |
+| Si te lo dan, arreglarlo y leerlo. | `rp.parse(_normalizar(r.text))`. |
+| Guardarlo en el cuaderno para no pedirlo otra vez. | `@lru_cache` recuerda el resultado. |
+
+```
+@lru_cache(maxsize=None)
+def _robots(base: str) -> RobotFileParser:
+    rp = RobotFileParser()
+    r = requests.get(f"{base}/robots.txt",
+                     headers={"User-Agent": USER_AGENT}, timeout=20)
+    if r.status_code in (401, 403):
+        rp.disallow_all = True
+    elif r.status_code >= 400:
+        rp.allow_all = True
+    else:
+        rp.parse(_normalizar(r.text))
+    return rp
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `@lru_cache` recuerda el resultado: la segunda vez que se pregunta por el mismo sitio, no vuelve a descargar nada.
+2. `requests.get(...)` descarga el robots.txt presentándose con nuestro nombre. `timeout=20` es el tiempo máximo de espera sin respuesta, para no quedar colgados.
+3. Según el código de estado se decide: 401 o 403 significa que nos cierran la puerta y se asume que no se puede entrar a nada; cualquier otro error (como 404) significa que no hay robots.txt y no se prohíbe nada.
+4. Si todo va bien, se arregla el texto con `_normalizar` y se interpreta con `rp.parse(...)`.
+
+**Ejemplo:** `_robots("https://www.viviendoporelmundo.com")` descarga el archivo una vez. Si lo vuelves a llamar con el mismo sitio, responde al instante sin pedir nada.
+
+| Código de estado | Qué decide el código |
+|---|---|
+| 200 | Leer las reglas del archivo. |
+| 404 | No hay robots.txt: nada está prohibido (pero quedan los términos de uso). |
+| 401 o 403 | Nos cierran la puerta: no se entra a nada. |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Decorador `@` | Una etiqueta puesta encima de una función para darle un superpoder. | `@lru_cache` hace que la función recuerde sus respuestas. |
+| Memoria de una función | Si se llama dos veces con el mismo dato, la segunda responde sin repetir el trabajo. | `cuadrado(3)` calcula; la segunda vez, `cuadrado(3)` responde de memoria. |
+| Objeto y método | Un objeto es algo que sabe hacer cosas; sus acciones se llaman con un punto. | `rp = RobotFileParser()` crea el lector; `rp.parse(...)` le da el texto para que lo lea. |
+| `if`, `elif`, `else` | Varias decisiones en cadena: gana la primera que se cumple. | Un 403 entra al primer caso, un 404 al segundo y un 200 al `else`. |
+| Operador `in` | Pregunta si algo está dentro de un grupo. | `403 in (401, 403)` da `True`. |
+| Cadena con valores (f-string) | Un texto que mete el valor de variables entre llaves. | Con `base = "https://x.com"`, `f"{base}/robots.txt"` da `https://x.com/robots.txt`. |
+| Argumentos con nombre | Dar un dato diciendo para qué es. | `timeout=20` se entiende mejor que un `20` suelto. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `requests` | El mensajero: hace desde el programa lo que hace tu navegador al abrir una dirección. | `r = requests.get("https://x.com/robots.txt")`; `r.status_code` da `200` y `r.text` trae el texto. |
+| `urllib.robotparser` | Un lector de carteles: le das el robots.txt y responde preguntas. | `rp.can_fetch("MiBot", "https://x.com/wp-admin/")` da `False`. |
+| `functools.lru_cache` | Le da memoria a una función. | Pide el robots.txt de un sitio una sola vez, aunque se pregunte mil veces. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| `rp.read()`, que es lo que usa la guía | Descarga con el nombre por defecto de Python, no con el nuestro, y no deja arreglar el texto antes de leerlo. |
+| Descargar el robots.txt cada vez que se visita una página | Le pediría el mismo archivo al sitio cientos de veces, sin necesidad. |
+
+
+## [Etapa 1 · Paso 3] 5. Preguntar si se puede entrar: `puede_visitar`
+
+> **Para qué:** Que el programa responda solo, página por página, si puede entrar o no. Es el guardia de la puerta: toda descarga pasa primero por aquí.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Mirar la dirección que el programa quiere visitar y apartar el nombre del sitio. | `urlparse(url)`. |
+| Buscar el cartel de ese sitio en el cuaderno. | `_robots(...)`. |
+| Comparar la dirección con las reglas del cartel y decir sí o no. | `can_fetch(USER_AGENT, url)`. |
+
+```
+def puede_visitar(url: str) -> bool:
+    p = urlparse(url)
+    return _robots(f"{p.scheme}://{p.netloc}").can_fetch(USER_AGENT, url)
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `urlparse(url)` parte la dirección en sus partes.
+2. Con el protocolo y el dominio arma la dirección base del sitio.
+3. Pide a `_robots` el robots.txt de ese sitio (ya interpretado).
+4. `can_fetch(USER_AGENT, url)` aplica la lógica de decisión de CONCEPTOS 7 y devuelve `True` o `False`.
+
+| Dirección | `urlparse` la parte en | Resultado |
+|---|---|---|
+| `https://www.viviendoporelmundo.com/wp-admin/` | protocolo `https`, dominio `www.viviendoporelmundo.com`, ruta `/wp-admin/` | `False` |
+| `https://www.viviendoporelmundo.com/` | ruta `/` | `True` |
+| `https://www.viviendoporelmundo.com/xmlrpc.php` | ruta `/xmlrpc.php` | `False` |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Parámetro con tipo | Después de los dos puntos va el tipo de dato esperado, y la flecha dice qué devuelve. Es una pista para quien lee. | `def puede_visitar(url: str) -> bool` recibe un texto y devuelve verdadero o falso. |
+| Verdadero o falso (`bool`) | Solo dos valores posibles: `True` y `False`. | `5 > 3` da `True`; `"a" == "b"` da `False`. |
+| Atributos | Los datos que guarda un objeto, que se leen con un punto. | `p.scheme` es el protocolo y `p.netloc` el dominio. |
+| Funciones que usan funciones | Una receta puede apoyarse en otras. | `puede_visitar` pide a `_robots` el robots.txt en vez de descargarlo ella misma. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `urllib.parse.urlparse` | Una navaja que parte una dirección en sus partes. | `urlparse("https://x.com/a/b")` da protocolo `https`, dominio `x.com` y ruta `/a/b`. |
+| `can_fetch` | La pregunta al lector de carteles. | `can_fetch(nombre, direccion)` da `True` o `False` aplicando la lógica de decisión. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Comparar con una lista de rutas prohibidas escrita a mano | No sirve para otro sitio y se queda vieja. |
+| No preguntar y confiar en no tocar nada prohibido | Un error de una sola línea haría que el programa entre a una zona prohibida sin que nadie lo note. |
+| Revisar el robots.txt a ojo antes de cada ejecución | Se olvida. Con la función, el permiso queda dentro del código. |
+
+
+## [Etapa 1 · Paso 3] 6. Cuánto esperar: `espera_del_sitio`
+
+> **Para qué:** Respetar el ritmo que pide el sitio sin tener que acordarse del número. Cada sitio pide algo distinto.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Preguntar en recepción cuánto hay que esperar entre una visita y otra. | `crawl_delay(USER_AGENT)`. |
+| Si dan un número, esperar eso; si no dicen nada, esperar al menos 2 segundos. | `float(retraso) if retraso else por_defecto`. |
+
+```
+def espera_del_sitio(url: str, por_defecto: float = 2.0) -> float:
+    p = urlparse(url)
+    retraso = _robots(f"{p.scheme}://{p.netloc}").crawl_delay(USER_AGENT)
+    return float(retraso) if retraso else por_defecto
+```
+
+**Cómo funciona, paso a paso:** busca el robots.txt del sitio, le pregunta por el `Crawl-delay` que corresponde a nuestro bot, y si existe lo devuelve como número; si el sitio no indica nada, devuelve 2 segundos como mínimo de cortesía.
+
+| Situación | Qué devuelve |
+|---|---|
+| El sitio dice `Crawl-delay: 10` (este sitio) | `10.0` |
+| El sitio no dice nada | `2.0` |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Valor por defecto | Lo que vale un dato si quien llama no lo da. | `def saludar(nombre="amigo")`; `saludar()` usa `"amigo"`. |
+| `None` | La ausencia de valor: «aquí no hay nada». | Si el sitio no indica espera, `crawl_delay` devuelve `None`. |
+| Entero y decimal | `int` no tiene decimales y `float` sí. | `10` es entero; `float(10)` da `10.0`. |
+| Condicional en una línea | `A if condicion else B` elige entre dos valores. | `"mayor" if edad >= 18 else "menor"`. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `crawl_delay` | Le pregunta al lector de carteles cuánto hay que esperar. | Con este sitio da `10`; con uno que no pide nada da `None`. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Esperar siempre 2 segundos, como en la guía | Es demasiado rápido para este sitio, que pide 10. |
+| Esperar siempre 10 segundos | Es lento en sitios que no piden tanto, y no se adapta a los que piden más. |
+| No esperar y ganar velocidad | Un servidor pequeño puede caerse o bloquearnos. Es el motivo de ser educados. |
+
+
+## [Etapa 1 · Paso 3] 7. Comprobar el robots.txt: `probar_robots.py`
+
+> **Para qué:** Comprobar con rutas que sabemos que deben dar «no» que los permisos funcionan de verdad. Gracias a esta prueba apareció el fallo de la línea en blanco.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Hacer una lista de nueve direcciones, unas que deben dejar pasar y otras que no. | La lista `rutas`. |
+| Ir una por una preguntando al guardia y anotar SÍ o NO. | El bucle `for ruta in rutas`. |
+| Al final, preguntar cuánto esperar y dónde está el plano del sitio. | `espera_del_sitio` y `site_maps()`. |
+
+```
+from scraper import USER_AGENT, _robots, espera_del_sitio, puede_visitar
+
+SITIO = "https://www.viviendoporelmundo.com"
+rutas = ["/", "/un-articulo/", "/wp-admin/", "/wp-admin/login.php",
+         "/wp-includes/js/jquery.js", "/wp-content/uploads/2025/foto.jpg",
+         "/wp-content/plugins/algo/", "/xmlrpc.php", "/readme.html"]
+
+for ruta in rutas:
+    resultado = puede_visitar(SITIO + ruta)
+    print(f"  {'SÍ' if resultado else 'NO':<3} {ruta}")
+
+print(espera_del_sitio(SITIO))
+print(_robots(SITIO).site_maps())
+```
+
+Esta es una versión resumida del script. Se ejecuta en la terminal: `.venv\Scripts\python.exe probar_robots.py`.
+
+**Cómo funciona:** toma nueve rutas, pregunta a `puede_visitar` por cada una e imprime `SÍ` o `NO`; al final imprime la espera y la dirección del sitemap. Mezcla rutas que deben dar sí (`/`, los artículos, las fotos) con rutas que deben dar no (las prohibidas).
+
+| Ruta | Antes de arreglar | Después de arreglar |
+|---|---|---|
+| `/wp-admin/`, `/wp-admin/login.php`, `/wp-includes/js/jquery.js` | NO | NO |
+| `/wp-content/plugins/algo/` | **SÍ (error)** | NO |
+| `/xmlrpc.php` | **SÍ (error)** | NO |
+| `/readme.html` | **SÍ (error)** | NO |
+| `/`, `/un-articulo/`, `/wp-content/uploads/2025/foto.jpg` | SÍ | SÍ |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Script y función | Una función espera a que la llamen; un script es un archivo que se ejecuta de arriba abajo. | `probar_robots.py` se ejecuta; `puede_visitar` solo trabaja cuando alguien la llama. |
+| `import` | Traer funciones de otro archivo o de una librería. | `from scraper import puede_visitar` trae esa función de `scraper.py`. |
+| Sumar textos | El signo `+` pega textos uno tras otro. | `"https://x.com" + "/wp-admin/"` da `https://x.com/wp-admin/`. |
+| Formato de columnas | En un f-string, `:<3` reserva 3 espacios para alinear. | Con `:<3`, `NO` y `SÍ` ocupan el mismo ancho y las rutas quedan alineadas. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Confiar en que el código funciona sin probarlo | No se habría visto que tres rutas prohibidas salían permitidas. Una prueba con casos que *deben* fallar es la que descubre este tipo de errores. |
+| Probar a mano en el navegador | El navegador no ejecuta nuestras reglas: no comprueba lo que va a hacer el programa. |
+
+
+## [Etapa 2 · Paso 5] 8. Pedir una página con educación: `HEADERS` y `pedir`
+
+> **Para qué:** Descargar una página respetando todas las reglas de los pasos anteriores (permiso, espera y nombre) y devolver todo lo que respondió el sitio. Es la función que usará el resto del proyecto.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Preguntar al guardia si se puede entrar. | `puede_visitar(url)`. |
+| Esperar los segundos que pide el sitio. | `time.sleep(...)`. |
+| Tocar la puerta con tu tarjeta de presentación y pedir la página. | `requests.get(url, headers=HEADERS, timeout=20)`. |
+| Si dicen que hubo un problema, anotarlo y seguir con otra cosa. | El bloque `try` y `except`, que imprime el motivo y devuelve `None`. |
+| Traer la respuesta completa. | `return r`. |
+
+```
+HEADERS = {
+    "User-Agent": USER_AGENT,
+    "Accept-Language": "es-CO,es;q=0.9,en;q=0.5",
+}
+
+def pedir(url: str, espera: float | None = None) -> requests.Response | None:
+    if not puede_visitar(url):
+        print(f"El robots.txt no permite visitar {url}")
+        return None
+    time.sleep(espera_del_sitio(url) if espera is None else espera)
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=20)
+        r.raise_for_status()
+    except requests.RequestException as e:
+        print(f"No se pudo descargar {url}: {e}")
+        return None
+    return r
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `HEADERS` son los datos con los que nos presentamos en cada petición: nuestro nombre y que preferimos contenido en español.
+2. Primero se pregunta a `puede_visitar`. Si el robots.txt no lo permite, se imprime un aviso, se devuelve `None` y **no se hace ninguna petición**.
+3. Luego se espera: lo que pida el sitio, salvo que se indique otro valor.
+4. `requests.get(...)` pide la página. `raise_for_status()` convierte un error del sitio (404, 500…) en una excepción.
+5. El bloque `try`/`except` atrapa cualquier fallo de red o de código de estado, imprime el motivo y devuelve `None`, en vez de romper el programa.
+6. Si todo va bien, devuelve la respuesta completa (`r`), que incluye el código de estado, las cabeceras y el contenido.
+
+| Caso | Qué pasa |
+|---|---|
+| `pedir("https://www.viviendoporelmundo.com/wp-admin/")` | Imprime «El robots.txt no permite visitar…», devuelve `None` y no toca el sitio. |
+| `pedir` de una página que no existe (404) | Imprime el error, devuelve `None`; el programa sigue con la siguiente página. |
+| `pedir("http://viviendoporelmundo.com/")` | Espera 10 s, pide la página, sigue la redirección y devuelve la respuesta con código 200. |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Diccionario | Pares nombre-valor entre llaves. | `{"nombre": "Ana", "edad": 30}`; `persona["nombre"]` da `"Ana"`. |
+| `try` y `except` | Intentar algo y, si falla, hacer otra cosa en vez de romperse. | `try: 10 / 0` y `except ZeroDivisionError: print("no se puede")` avisa en vez de detener el programa. |
+| Salida temprana | Terminar una función apenas se sabe que no se puede seguir. | `if not puede_visitar(url): return None` corta antes de pedir nada. |
+| Devolver `None` en vez de romper | Un fallo no detiene todo: se avisa y se sigue. | Si una página da 404, `pedir` devuelve `None` y el recorrido continúa con la siguiente. |
+| `not` | Invierte una condición. | `not True` da `False`. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `time.sleep` | Pone el programa a dormir unos segundos. | `time.sleep(10)` hace una pausa de diez segundos. |
+| `requests.get` | Pide la dirección, presentándose con la tarjeta (`headers`) y con un tiempo máximo de espera (`timeout`). | Pedir la portada devuelve una respuesta con el código 200. |
+| `raise_for_status` | Si la respuesta es un error, avisa con una excepción. | Una página que no existe da el error 404 y salta al bloque `except`. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Llamar directamente a `requests.get(url)` | No pregunta el permiso, no espera y se presenta con el nombre por defecto. Habría que repetir esas tres cosas en cada sitio donde se descargue algo. |
+| Usar `urllib.request`, que viene con Python | Hace lo mismo, pero con más líneas y más difícil de leer. `requests` es la librería habitual para esto. |
+| Descargar varias páginas a la vez para ir más rápido | Rompería la espera de 10 segundos: es justo lo que el sitio pidió que no se haga. |
+| Que falle y se detenga el programa ante un error | Una sola página rota detendría el recorrido de las 244. Por convención del proyecto, un fallo imprime el motivo y devuelve `None`. |
+| Sin `timeout` | Si el servidor no responde, el programa se quedaría esperando para siempre. |
+
+
+## [Etapa 2 · Paso 5] 9. Obtener solo el texto HTML: `descargar`
+
+> **Para qué:** Quedarse únicamente con el HTML legible de una página y descartar lo que no lo es. Es la versión simple de `pedir`: devuelve texto en vez de la respuesta completa.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Revisar el paquete: ¿es una página web o es una foto? | La condición sobre `Content-Type`. |
+| Si es una foto o un PDF, dejarlo. | `return None`. |
+| Comprobar que las letras se leen bien; si no, usar el diccionario adecuado. | `r.encoding = r.apparent_encoding`. |
+| Entregar el texto de la página. | `return r.text`. |
+
+```
+def descargar(url: str, espera: float | None = None,
+              solo_html: bool = True) -> str | None:
+    r = pedir(url, espera)
+    if r is None:
+        return None
+    if solo_html and "text/html" not in r.headers.get("Content-Type", ""):
+        return None
+    if r.encoding in (None, "ISO-8859-1"):
+        r.encoding = r.apparent_encoding
+    return r.text
+```
+
+**Cómo funciona, paso a paso:**
+
+1. Llama a `pedir`. Si devolvió `None` (no se pudo o no se debe), devuelve `None`.
+2. Si `solo_html` está activo, mira el tipo de contenido: si no es HTML (una imagen, un PDF), devuelve `None`.
+3. Si la respuesta no declara su codificación, o declara una antigua (`ISO-8859-1`), deja que `requests` la adivine con `apparent_encoding`.
+4. Devuelve el texto de la página.
+
+| Caso | Qué devuelve |
+|---|---|
+| La portada de la web (HTML) | Un texto largo con todo el HTML. |
+| Un archivo `.jpg` o `.pdf` | `None`. |
+| Una dirección prohibida o que falla | `None`. |
+
+**Sobre la codificación.** Es la tabla que dice cómo se guardan las letras. Si se lee con la tabla equivocada, «Acción» aparece como «AcciÃ³n». Por eso, cuando la respuesta no la declara bien, se deja que `requests` la deduzca del propio texto.
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Combinar condiciones | `and` pide que se cumplan las dos; `or`, que se cumpla una; `not`, que no se cumpla. | `solo_html and "text/html" not in tipo` solo descarta si el interruptor está activo y el tipo no es HTML. |
+| Interruptor (`bool`) | Un parámetro verdadero o falso que activa o apaga algo. | `solo_html=True` activa el filtro; `False` lo apaga. |
+| Pedir con respaldo | `.get(clave, respaldo)` devuelve el respaldo si la clave no existe. | `headers.get("Content-Type", "")` da texto vacío si falta, sin romperse. |
+| Cambiar un atributo | Asignar un valor nuevo a una propiedad del objeto. | `r.encoding = r.apparent_encoding` corrige la codificación antes de leer el texto. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `r.text` | El contenido de la respuesta ya convertido a texto. | La página completa como un texto largo. |
+| `r.headers` | La nota del mensajero, como un diccionario. | `r.headers["Content-Type"]` da `text/html; charset=UTF-8`. |
+| `r.apparent_encoding` | La librería mira el contenido y adivina con qué tabla de letras estaba escrito. | La palabra «Acción» leída con la tabla equivocada sale como «AcciÃ³n». |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Devolver siempre `r.text` sin revisar | Las tildes y las eñes podrían salir rotas en páginas que no declaren su codificación. |
+| Usar `r.content` (los bytes sin decodificar) | Habría que decodificar a mano. Para texto es más cómodo recibirlo ya como texto. |
+| Aceptar cualquier tipo de archivo | Al intentar leer una imagen o un PDF como HTML saldría basura, y el paso de extracción fallaría más adelante. |
+
+
+## [Etapa 2 · Paso 5] 10. Ver la respuesta del sitio: `probar_descarga.py`
+
+> **Para qué:** Pedir una sola página y mirar la respuesta completa: código de estado, tipo de contenido, redirecciones y HTML crudo. Sirve para entender qué recibe un programa antes de procesarlo.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Pedir la página y anotar lo que dicen en la puerta. | `pedir(URL)`. |
+| Anotar el código de respuesta, la clase de paquete y cuánto pesa. | `r.status_code`, el tipo de contenido y `len(r.content)`. |
+| Anotar a dónde lo mandaron si cambió de dirección. | `r.url` y `r.history`. |
+| Leer los primeros renglones del paquete. | `r.text[:500]`. |
+
+```
+from scraper import espera_del_sitio, pedir
+
+URL = "http://viviendoporelmundo.com/"
+r = pedir(URL)
+
+print(r.status_code)
+print(r.headers.get("Content-Type"))
+print(len(r.content))
+print(r.url)
+for salto in r.history:
+    print(salto.status_code, salto.url, "->", salto.headers.get("Location"))
+print(r.text[:500])
+```
+
+Es una versión resumida. Se ejecuta en la terminal: `.venv\Scripts\python.exe probar_descarga.py`.
+
+**Cómo funciona:** pide la portada con `pedir` y luego imprime partes de la respuesta: el código de estado, el tipo de contenido, el tamaño, la dirección final y las redirecciones por las que pasó (`r.history`), y los primeros 500 caracteres del HTML.
+
+| Dato | Lo que salió (9 oct 2026) | Qué dice |
+|---|---|---|
+| `r.status_code` | 200 | La petición salió bien. |
+| Tipo de contenido | `text/html; charset=UTF-8` | Una página HTML con tildes bien guardadas. |
+| Tamaño | 245.915 bytes | Unos 240 KB en una sola página. |
+| `r.url` y `r.history` | 301 de `http://viviendoporelmundo.com/` a `https://www.viviendoporelmundo.com/` | El sitio se mudó de dirección y el código siguió el cambio. |
+| `r.text[:500]` | `<!DOCTYPE html>`, comentarios para Internet Explorer, `<meta>` y un `<script>` | El HTML crudo es código, no texto de artículo. |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Atributos de una respuesta | La respuesta sabe cosas de sí misma, y se leen con un punto. | `r.status_code` da `200`; `r.url` da la dirección final. |
+| Rebanar un texto | `[:500]` toma solo los primeros 500 caracteres. | `"abcdef"[:3]` da `"abc"`. |
+| Recorrer una lista de saltos | Un `for` sirve para ver uno por uno los elementos de `r.history`. | Cada salto es una redirección con su código y su dirección. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `r.history` | La lista de redirecciones por las que pasó la petición. | Aquí tiene un solo salto: el 301 hacia `https://www…`. |
+| `r.elapsed` | Cuánto tardó la respuesta. | Dio 1,86 segundos. |
+| `re.findall` | Busca todos los lugares donde aparece un patrón en un texto. | En el script completo, `re.findall(r"<a ", texto)` encuentra cada etiqueta de enlace y sirve para contarlos. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Abrir la página en el navegador y mirarla | El navegador te muestra la página ya montada y oculta la redirección y las cabeceras. El programa recibe otra cosa. |
+| Imprimir solo el texto, sin los datos de la respuesta | No se vería el código de estado ni la redirección, que fue justo lo que se descubrió. |
+| Descargar muchas páginas para probar | Una sola basta para entender la respuesta, y cada petición de más es una visita más al sitio. |
+
+> **En resumen** Estas diez piezas son todo el código del ejercicio hasta el paso 5. Cada vez que se añada código nuevo, se explicará aquí con su etapa, su «Para qué», un ejemplo y la comparación con otras opciones.
 

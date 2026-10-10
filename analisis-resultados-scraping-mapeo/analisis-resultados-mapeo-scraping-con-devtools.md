@@ -257,3 +257,84 @@ Abrir el sitio con tu navegador y mirar su código es una visita humana normal. 
 
 Al abrir la consola en una página con publicidad aparecen errores en rojo y avisos en amarillo (por ejemplo `ERR_NAME_NOT_RESOLVED` o `generate_204`). Son de los scripts de terceros de la propia página (anuncios, YouTube, estadísticas). No tienen que ver con lo que hacemos y se ignoran.
 
+
+---
+
+# CÓDIGOS DE PROGRAMACIÓN UTILIZADOS
+
+Esta sección reúne cada pieza de código que se use en este ejercicio, explicada para alguien que empieza. Aquí el lenguaje es **JavaScript**, que se ejecuta en la consola del navegador (F12), no en un archivo del proyecto. Cada pieza trae su etapa y paso, su «Para qué», lo que haría una persona, el código, la lógica, los conceptos que aparecen, lo que hacen las herramientas del navegador, un ejemplo y la comparación con otras formas.
+
+
+## [Etapa 2 · Paso 2] 1. Listar los enlaces internos de una página
+
+> **Para qué:** Sacar con una sola línea la lista de enlaces de la página abierta, que es mapear a mano. Sirve para ver lo que el sitio muestra y compararlo después con el sitemap.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Recorrer la página con un resaltador y marcar cada enlace. | `document.querySelectorAll('a[href]')`. |
+| A cada enlace, quitarle la parte del ancla (lo que va tras `#`). | `.map(a => a.href.split('#')[0])`. |
+| Tirar los que llevan a otros sitios. | `.filter(...)` con `endsWith('viviendoporelmundo.com')`. |
+| Tachar los repetidos y ordenar el resto. | `new Set(...)` y `.sort()`. |
+| Contar cuántos quedaron y mostrarlos en una tabla. | `console.log` y `console.table`. |
+
+```
+const enlaces = [...new Set(
+  [...document.querySelectorAll('a[href]')]
+    .map(a => a.href.split('#')[0])
+    .filter(h => new URL(h).hostname.endsWith('viviendoporelmundo.com'))
+)].sort();
+console.log(enlaces.length);
+console.table(enlaces);
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `document.querySelectorAll('a[href]')` toma todos los enlaces de la página.
+2. `.map(a => a.href.split('#')[0])` se queda con la dirección y quita el ancla (lo que va después de `#`).
+3. `.filter(...)` conserva solo los enlaces cuyo dominio termina en `viviendoporelmundo.com`, es decir, los internos.
+4. `new Set(...)` elimina los repetidos, y `.sort()` los ordena.
+5. `console.log` imprime cuántos hay y `console.table` los muestra en una tabla.
+
+**Ejemplo de la lógica** (la forma, no un resultado real):
+
+| Enlace en la página | ¿Se conserva? | Por qué |
+|---|---|---|
+| `https://www.viviendoporelmundo.com/#comentarios` | Sí, como `https://www.viviendoporelmundo.com/` | Es interno; se quita el ancla `#comentarios`. |
+| `https://www.viviendoporelmundo.com/` | Se cuenta una sola vez | `new Set` elimina el repetido. |
+| `https://www.youtube.com/watch?v=...` | No | El dominio no termina en `viviendoporelmundo.com`. |
+
+**Dónde se ejecuta:** en DevTools, pestaña Console, con la página abierta. Si Chrome avisa del pegado, hay que escribir `allow pasting` primero.
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Constante (`const`) | Un nombre que guarda un valor que no se va a reasignar. | `const edad = 30`. |
+| Arreglo (lista) | Varios valores en orden, entre corchetes; en JavaScript se llama arreglo. | `[1, 2, 3]`. |
+| Función flecha | Una receta corta: `a => a.href` significa «para cada `a`, dame su `href`». | `n => n * 2` convierte `4` en `8`. |
+| `map` | Transforma cada elemento de una lista. | `[1, 2, 3].map(n => n * 2)` da `[2, 4, 6]`. |
+| `filter` | Se queda solo con los elementos que cumplen una condición. | `[1, 2, 3, 4].filter(n => n > 2)` da `[3, 4]`. |
+| `Set` | Un conjunto: guarda cada valor una sola vez. | `new Set([1, 1, 2])` guarda solo `1` y `2`. |
+| Operador de expansión (`...`) | Saca los elementos de un grupo para meterlos en una lista nueva. | `[...new Set([1, 1, 2])]` da `[1, 2]`. |
+
+**Las herramientas del navegador, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `document` | La página abierta, convertida en algo que el código puede recorrer. | `document.title` da el título de la página. |
+| `querySelectorAll` | Busca todas las etiquetas que coincidan con una descripción. | `document.querySelectorAll('a')` devuelve todos los enlaces. |
+| `console` | La ventana de mensajes de DevTools. | `console.log(5)` escribe `5`; `console.table(lista)` hace una tabla. |
+| `URL` | Parte una dirección en sus partes. | `new URL('https://x.com/a').hostname` da `x.com`. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Copiar los enlaces uno por uno a mano | Es lento y se pierden o se repiten enlaces. |
+| Una extensión del navegador que extrae enlaces | Hay que instalar algo de terceros y no se ve cómo funciona por dentro; aquí interesa entender la lógica. |
+| Un programa en Python que rastree el sitio | Es la forma automática y escala, pero hace peticiones y tiene que respetar el ritmo. Es justo lo que se compara con esta forma. |
+
+> **En resumen** Esta es la única pieza de código de este ejercicio por ahora. Se irán añadiendo las que se usen en los pasos siguientes.
+

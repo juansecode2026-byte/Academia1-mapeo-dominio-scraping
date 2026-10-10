@@ -2,9 +2,9 @@
 
 Registro de lo que sale en cada etapa del ejercicio sobre viviendoporelmundo.com, hecho a mano con Python y guiado paso a paso.
 
-**Versión** v3 · **Fecha** 9 de octubre de 2026 · **Estado** Etapas 0 y 1 hechas
+**Versión** v4 · **Fecha** 10 de octubre de 2026 · **Estado** Etapas 0, 1 y 2 hechas
 
-> Fuente original: `analisis-resultados-mapeo-scraping-manual_2026-10-09_v3.html` (respaldo, no leer). Este `.md` es la copia para leer y actualizar.
+> Fuente original: `analisis-resultados-mapeo-scraping-manual_2026-10-10_v4.html` (respaldo, no leer). Este `.md` es la copia para leer y actualizar.
 
 ## Para qué sirve este informe
 
@@ -47,9 +47,9 @@ Los pasos 1 a 7 son el mapeo; del 9 al 11, el scraping. El filtrado (paso 8) es 
 - [x] **Paso 3. Leer el robots.txt con código** — Terminal · Etapa 1 · Cómo un programa pregunta si puede entrar.
 - [x] **Paso 4. Abrir el `sitemap_index.xml`** — Navegador · Etapa 2 · Cómo se ve un índice de mapas.
 - [x] **Paso 5. Descargar una página con código** — Terminal · Etapa 2 · Qué es una petición HTTP y el HTML crudo.
-- [ ] **Paso 6. Leer el índice y los mapas hijos** *(en curso)* — Terminal · Etapa 2 · Cómo se pasa de un índice a la lista de URLs.
-- [ ] **Paso 7. Guardar las URLs en SQLite** — Terminal · Etapa 2 · Qué es una base de datos y cómo se evita duplicar.
-- [ ] **Paso 8. Filtrar las URLs** — Terminal · Etapa 3 · Dónde fallan las reglas fijas.
+- [x] **Paso 6. Leer el índice y los mapas hijos** — Terminal · Etapa 2 · Cómo se pasa de un índice a la lista de URLs.
+- [x] **Paso 7. Guardar las URLs en SQLite** — Terminal · Etapa 2 · Qué es una base de datos y cómo se evita duplicar.
+- [ ] **Paso 8. Filtrar las URLs** *(en curso)* — Terminal · Etapa 3 · Dónde fallan las reglas fijas.
 - [ ] **Paso 9. Inspeccionar el HTML de un artículo** — Navegador (F12) · Etapa 4 · La estructura de una página.
 - [ ] **Paso 10. Extraer el texto de una página** — Terminal · Etapa 4 · Qué hacen BeautifulSoup y trafilatura.
 - [ ] **Paso 11. Guardar la ficha y la cita** — Terminal · Etapa 5 · Cómo queda un dato citable.
@@ -114,18 +114,18 @@ Las mismas en los tres informes. Al final del informe de agentes se comparan las
 
 | Bloque | Registro |
 |---|---|
-| Qué se hizo | Pasos 4 y 5 hechos (9 oct 2026): el índice del sitemap y `post-sitemap.xml` abiertos en el navegador, y la portada descargada con código (`pedir()` y `descargar()` en `scraper.py`, probadas con `probar_descarga.py`). Pasos 6 y 7 pendientes: lectura de los mapas hijos y tabla `urls`. |
-| Resultado | Índice (`http://viviendoporelmundo.com/sitemap_index.xml`): generado por Yoast SEO, con **2 mapas hijos**, `post-sitemap.xml` (entradas) y `page-sitemap.xml` (páginas), ambos en `https://www.…`. `post-sitemap.xml`: **244 URLs** según su propio encabezado (el paso 6 las recontará con código), con fechas de modificación desde 2015-10-26 hasta 2026-06-20, ordenadas de la más antigua a la más reciente, y una columna con el número de imágenes por página (de 1 a 264). La fecha del índice (2026-06-20 04:46) coincide exactamente con la de la última entrada del mapa. `page-sitemap.xml`: todavía sin contar (lo hará el paso 6). No hay mapa de categorías ni de etiquetas. Paso 5 (portada, `http://viviendoporelmundo.com/`): código 200, tipo `text/html; charset=UTF-8`, 245.915 bytes de HTML, 1,86 s de respuesta; el sitio redirigió con un 301 a `https://www.viviendoporelmundo.com/`. El HTML crudo trae 136 etiquetas `<a href>` (conteo aproximado con expresión regular). Título: «Viviendo por el mundo - Fórmate como Nómada Digital y Viaja todo lo que quieras». |
-| Costo (tiempo, peticiones, tokens) | Paso 4: tres visitas con el navegador, sin programa. Paso 5: una página pedida con código; con la redirección fueron 2 peticiones al sitio, tras 10 s de espera, y la respuesta tardó 1,86 s. 0 tokens. |
-| Qué falló o sorprendió | Tres cosas. 1) No hay mapa de categorías: el sitemap no es el plano completo. 2) Ninguna dirección tiene carpeta (`/blog/…`): todas cuelgan de la raíz, así que las reglas de la guía (`PATRONES_UTILES`) descartarían todas las páginas. 3) `Last Mod.` no es la fecha de publicación: hay bloques de decenas de entradas con la misma fecha de edición (21 al 26 de julio de 2021) y otro de 9 entradas del 20 de junio de 2026. 4) Pedir la dirección con `http://` y sin `www` provocó una redirección 301: una sola página fueron dos peticiones, y el código sigue esa redirección sin esperar entre las dos, así que conviene pedir ya la dirección final (`https://www…`). 5) El inicio del HTML crudo es código (comentarios para navegadores antiguos, metadatos y scripts), no texto de artículo, y el título de la portada presenta el sitio como formación de nómada digital, lo que apunta a contenido comercial junto a los artículos de viaje. |
-| Conclusión | Pendiente. |
+| Qué se hizo | Etapa cerrada. Pasos 4 a 7 hechos (9 y 10 oct 2026): el sitemap visto en el navegador; la portada descargada con código (`pedir()` y `descargar()`); el índice y los dos mapas leídos con código (`leer_sitemap()`); y las 292 direcciones guardadas en la base de datos local `datos/scraping.db`, tabla `urls` (`abrir_base()`, `urls_desde_sitemap()` y `guardar_urls()`, probadas con `guardar_mapa.py`). |
+| Resultado | Índice (`http://viviendoporelmundo.com/sitemap_index.xml`): generado por Yoast SEO, con **2 mapas hijos**, `post-sitemap.xml` (entradas) y `page-sitemap.xml` (páginas), ambos en `https://www.…`. `post-sitemap.xml`: **244 URLs** según su propio encabezado (el paso 6 lo confirmó con código), con fechas de modificación desde 2015-10-26 hasta 2026-06-20, ordenadas de la más antigua a la más reciente, y una columna con el número de imágenes por página (de 1 a 264). La fecha del índice (2026-06-20 04:46) coincide exactamente con la de la última entrada del mapa. `page-sitemap.xml`: 48 direcciones (contadas con código en el paso 6). No hay mapa de categorías ni de etiquetas. Paso 5 (portada, `http://viviendoporelmundo.com/`): código 200, tipo `text/html; charset=UTF-8`, 245.915 bytes de HTML, 1,86 s de respuesta; el sitio redirigió con un 301 a `https://www.viviendoporelmundo.com/`. El HTML crudo trae 136 etiquetas `<a href>` (conteo aproximado con expresión regular). Título: «Viviendo por el mundo - Fórmate como Nómada Digital y Viaja todo lo que quieras». Paso 6 (10 oct 2026, con código): el índice trae 2 mapas hijos y ninguna página suelta; `post-sitemap.xml` tiene **244** direcciones (coincide con el encabezado y con el paso 4) y `page-sitemap.xml` **48**; en total **292 direcciones, todas distintas**. Fechas de modificación de 2015-10-26 a 2026-06-20; por año, 2021 (78), 2025 (54) y 2026 (58) reúnen 190 de las 292. La fecha del índice para `page-sitemap.xml` (04:48:56) es exactamente la de su página más reciente. Paso 7 (10 oct 2026): las 292 direcciones guardadas en `datos/scraping.db` (unos 100 KB, fuera de git): 244 del mapa de entradas y 48 del de páginas, todas con `vale_la_pena` vacío. Volver a guardar no duplica ni borra marcas (probado en una copia). Carpetas: las 244 entradas cuelgan de la raíz; de las 48 páginas, 30 están en la raíz, 16 en `/paises/` (guías de costos por país) y 2 en `/quien-es-viviendo-por-el-mundo/`. Vistazo previo para Colombia, solo por palabras en la dirección: 9 direcciones, 8 entradas y la guía `/paises/guia-colombia-cuanto-cuesta-viajar/`. |
+| Costo (tiempo, peticiones, tokens) | Paso 4: tres visitas con el navegador, sin programa. Paso 5: una página pedida con código; con la redirección fueron 2 peticiones al sitio, tras 10 s de espera, y la respuesta tardó 1,86 s. Paso 6: 3 peticiones (el índice y los dos mapas, más el robots.txt), 38 s en total con las esperas. Paso 7: otras 3 peticiones para leer los mapas otra vez y guardarlos (la base no hace peticiones). 0 tokens. |
+| Qué falló o sorprendió | Tres cosas. 1) No hay mapa de categorías: el sitemap no es el plano completo. 2) En el mapa de entradas ninguna dirección tiene carpeta (`/blog/…`): todas cuelgan de la raíz; en el mapa de páginas, al menos las cinco últimas usan la carpeta `/paises/`. Las reglas de la guía (`PATRONES_UTILES`: `/blog/`, `/noticias/`, `/articulo/`) no coinciden con ninguna de las direcciones vistas. 3) `Last Mod.` no es la fecha de publicación: hay bloques de decenas de entradas con la misma fecha de edición (21 al 26 de julio de 2021) y otro de 9 entradas del 20 de junio de 2026. 4) Pedir la dirección con `http://` y sin `www` provocó una redirección 301: una sola página fueron dos peticiones, y el código sigue esa redirección sin esperar entre las dos, así que conviene pedir ya la dirección final (`https://www…`). 5) El inicio del HTML crudo es código (comentarios para navegadores antiguos, metadatos y scripts), no texto de artículo, y el título de la portada presenta el sitio como formación de nómada digital, lo que apunta a contenido comercial junto a los artículos de viaje. 6) El mapa de páginas tiene 48 direcciones, que no se habían visto en el navegador, y 18 de ellas usan carpeta: 16 en `/paises/` (guías de costos por país, que cuentan como material) y 2 en `/quien-es-viviendo-por-el-mundo/`. 7) En la primera ejecución del paso 7 falló la red (el nombre del sitio no se resolvió) y el programa se cayó con un error largo; el fallo fue momentáneo, pero mostró que leer el robots.txt no estaba protegido. Se corrigió: ahora `puede_visitar` avisa en una línea y no entra. 8) Buscar palabras de Colombia en las direcciones es solo un vistazo: puede dejar fuera artículos que hablan de Colombia sin nombrarla en la dirección. El filtro real es el paso 8. |
+| Conclusión | El mapeo termina con 292 direcciones guardadas, sin repetidos y sin decidir. El sitemap sirvió de mapa, pero no basta: faltan categorías y mezcla contenido útil con podcasts, vídeos y venta. Siguiente: filtrar (etapa 3), empezando por Colombia. |
 
 
 ### Etapa 3. Filtrado
 
 | Bloque | Registro |
 |---|---|
-| Qué se hizo | Paso 8: reglas fijas de URL. |
+| Qué se hizo | Siguiente (paso 8): marcar las 292 direcciones con `vale_la_pena` y `motivo`, empezando por el tema Colombia. Se guardan todas y se marca, no se borra. |
 | Resultado | Pendiente. |
 | Costo (tiempo, peticiones, tokens) | Pendiente. |
 | Qué falló o sorprendió | Pendiente. |
@@ -163,6 +163,8 @@ Las mismas en los tres informes. Al final del informe de agentes se comparan las
 | Etapa 0 de preparación | Es un paso propio. |
 | Ubicación | `analisis-resultados-scraping-mapeo/`, con copia en `.md`. |
 | Muestra de la etapa 4 | 3 páginas y luego 10. |
+| Tema inicial | Colombia: el filtro del paso 8 busca el material que sirva para un artículo sobre ese tema. |
+| Direcciones | Se guardan todas (292) y se marcan; no se borra nada. Las guías por país cuentan como material. |
 | Contenido de terceros | El informe lleva cifras y citas cortas, nunca el texto completo de los artículos. |
 
 
@@ -173,6 +175,7 @@ Las mismas en los tres informes. Al final del informe de agentes se comparan las
 | v1 | 9 de octubre de 2026 | `analisis-resultados-mapeo-scraping-manual_2026-10-09_v1.html` | Plan: modo de trabajo, checklist de pasos, esqueleto, métricas y resultados por etapa, todos pendientes. |
 | v2 | 9 de octubre de 2026 | `analisis-resultados-mapeo-scraping-manual_2026-10-09_v2.html` | Cierra la etapa 0 (entorno) y la etapa 1 (permisos): robots.txt verificado y leído con código, términos de uso revisados, sección CONCEPTOS con los puntos 1 a 13. |
 | v3 | 9 de octubre de 2026 | `analisis-resultados-mapeo-scraping-manual_2026-10-09_v3.html` | Agrega la tercera forma (DevTools) al contexto: tabla de las tres formas y métricas compartidas por tres informes. |
+| v4 | 10 de octubre de 2026 | `analisis-resultados-mapeo-scraping-manual_2026-10-10_v4.html` | Cierra la etapa 2 (mapeo): sitemap leído con código (292 direcciones) y guardado en la base de datos `datos/scraping.db`; conceptos 14 a 18 y sección de códigos con 16 piezas. Tema inicial: Colombia. |
 
 Cada vez que se cierre un paso o una etapa se actualiza este informe y se guarda una versión nueva con la fecha en el nombre.
 
@@ -559,7 +562,7 @@ Este mapa es la lista de las **entradas** (los artículos) del blog. Según su p
 | Images | Cuántas imágenes tiene esa página (la cuenta Yoast). | 86 |
 | Last Mod. | Fecha y hora de la última modificación, en hora universal (UTC). | 2026-06-20 04:46 |
 
-**Anatomía de una dirección.** En `.../que-ver-en-budapest-2-dias-a-pie/`, la parte final se llama *slug*: es el nombre de la página dentro de la dirección, casi siempre un resumen del tema con palabras separadas por guiones. Aquí todas las direcciones cuelgan directamente de la raíz: no hay carpetas como `/blog/` ni `/pais/`.
+**Anatomía de una dirección.** En `.../que-ver-en-budapest-2-dias-a-pie/`, la parte final se llama *slug*: es el nombre de la página dentro de la dirección, casi siempre un resumen del tema con palabras separadas por guiones. En este mapa de entradas todas las direcciones cuelgan directamente de la raíz: no hay carpetas como `/blog/` ni `/pais/`. (El mapa de páginas sí usa alguna, como se ve en el paso 6.)
 
 **El orden de la lista.** Va de la fecha de modificación más antigua (2015-10-26) a la más reciente (2026-06-20). No es el orden de publicación.
 
@@ -576,7 +579,7 @@ Este mapa es la lista de las **entradas** (los artículos) del blog. Según su p
 | Contenido comercial o de afiliación | Seguros de viaje, hosting, cursos, afiliados | Mejor descartarlas: su fin es vender. |
 | Posibles duplicados | Terminan en `-2` | Parecen una segunda versión de otra entrada. |
 
-> **Aviso para el filtrado** Las reglas de la guía (`PATRONES_UTILES = ("/blog/", "/noticias/", "/articulo/")`) buscan carpetas dentro de la dirección. En este sitio ninguna dirección las tiene, así que esas reglas descartarían todo. Es un ejemplo claro de por qué las reglas fijas no sirven igual en todos los sitios, y de lo que un agente hará distinto: leer el nombre y decidir con criterio.
+> **Aviso para el filtrado** Las reglas de la guía (`PATRONES_UTILES = ("/blog/", "/noticias/", "/articulo/")`) buscan carpetas dentro de la dirección. En el mapa de entradas ninguna dirección las tiene (y en el de páginas aparece `/paises/`, que tampoco coincide), así que esas reglas descartarían todo lo que hemos visto. Es un ejemplo claro de por qué las reglas fijas no sirven igual en todos los sitios, y de lo que un agente hará distinto: leer el nombre y decidir con criterio.
 
 **La columna Images** va de 1 a 264. Sirve de pista del tamaño de una guía: una entrada con 264 imágenes es una guía muy larga. Recuerda que las fotos tienen derechos de autor: se cuentan, no se descargan.
 
@@ -619,6 +622,127 @@ Este mapa es la lista de las **entradas** (los artículos) del blog. Según su p
 **Qué es el HTML crudo.** Es el texto tal como lo recibe el programa: etiquetas, comentarios y scripts, todo mezclado. Los primeros 500 caracteres de la portada son un buen ejemplo: `<!DOCTYPE html>`, comentarios para navegadores muy antiguos (Internet Explorer 7 y 8), `<meta charset>` y un `<script>`. Nada de eso es texto de artículo. Por eso existe el paso 10, que limpia el HTML y se queda solo con el texto principal.
 
 > **Qué obtienes** Una función `pedir()` que descarga una página de forma educada (con permiso, espera y nombre) y devuelve todo lo que respondió el sitio, y una función `descargar()` que devuelve solo el texto HTML. Con ellas el paso 6 puede leer los mapas del sitemap.
+
+
+## [Etapa 2 · Paso 6] 17. Leer los mapas con código: qué se buscaba y qué resultado salió (paso 6)
+
+> **Para qué:** Pasar de ver el catálogo a mano a leerlo con código, para tener la lista completa de direcciones dentro del programa, comprobada y lista para guardar. Sin esa lista, el programa no sabe qué páginas existen.
+
+**La analogía.** En el paso 4 mirabas el catálogo de la biblioteca y contabas las fichas con los ojos. Ahora un empleado copia el catálogo ficha por ficha a una hoja y la suma: es más rápido, no se cansa y se puede repetir cuando quieras.
+
+**Qué resultados se buscaban:**
+
+1. **La lista completa de direcciones dentro del programa**, no solo en la pantalla del navegador. Es la materia prima de los pasos 7 y 8.
+2. **Comprobar que el código ve lo mismo que tú.** En el paso 4 viste 244 direcciones en el mapa de entradas; si el código daba otro número, algo estaba mal.
+3. **Contar lo que nunca se había contado:** cuántas páginas fijas hay en `page-sitemap.xml`.
+
+**La lógica, paso a paso:**
+
+1. Se pide el índice (`sitemap_index.xml`). Responde con una lista de **2 mapas hijos**.
+2. Se pide cada hijo, esperando 10 segundos entre petición y petición.
+3. En cada hijo se lee cada ficha: su dirección y su fecha de modificación.
+4. Todo se junta en una lista grande, anotando de qué mapa salió cada dirección.
+5. Se cuenta, se comprueba que no haya repetidas y se compara con lo esperado.
+
+**El resultado y por qué sale ese número** (10 de octubre de 2026):
+
+| Qué se contó | Resultado | Por qué sale ese número |
+|---|---|---|
+| `post-sitemap.xml` (entradas) | 244 | Coincide con el encabezado del mapa y con lo que se vio en el paso 4: el código y el navegador ven lo mismo. |
+| `page-sitemap.xml` (páginas) | 48 | No se había visto antes: son las páginas fijas del sitio. |
+| Total | 292 | Es la suma: 244 + 48. |
+| Direcciones distintas | 292 | Ninguna se repite: contar la lista y contar el conjunto sin repetidos da lo mismo. |
+
+**Un ejemplo de la lógica.** Si un mapa tuviera 3 direcciones y otro 2, la lista grande tendría 5. Si el conjunto sin repetidos tuviera solo 4, sabrías que una dirección aparece en los dos mapas. Aquí el total y las distintas coinciden, así que no hay repetidas.
+
+**Cómo leer las fechas.** Cada dirección trae la fecha de su última modificación. Contadas por año:
+
+| Año | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 | 2026 |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| Direcciones | 2 | 11 | 5 | 21 | 8 | 8 | **78** | 16 | 23 | 8 | **54** | **58** |
+
+Los años 2021, 2025 y 2026 suman 190 de las 292 direcciones, casi dos de cada tres. No quiere decir que se publicara más en esos años, sino que se **editaron muchas páginas a la vez** (cambios en bloque), que es lo que ya se había visto con `Last Mod.`. Por eso esa fecha no sirve como fecha de publicación.
+
+**Dos comprobaciones.** La modificación más antigua es del 26 de octubre de 2015 (una entrada) y la más reciente del 20 de junio de 2026 a las 04:48:56 (una página). Y esa última fecha es **exactamente** la que el índice daba para `page-sitemap.xml`: confirma que la fecha de un mapa es la de su página más reciente.
+
+> **Algo nuevo: carpetas en las direcciones** Las cinco últimas direcciones, que son del mapa de páginas, tienen la forma `/paises/guia-china-cuanto-cuesta-viajar/`: usan la carpeta `/paises/`. Las entradas, en cambio, cuelgan todas de la raíz. Cuántas de las 48 páginas usan carpeta se verá al guardarlas en el paso 7. Lo que dije antes («ninguna dirección tiene carpeta») valía solo para el mapa de entradas.
+
+**Lo que el resultado no significa.** 292 no es el tamaño del sitio: es lo que el sitemap lista (faltan, por ejemplo, las categorías). Y que una dirección exista no quiere decir que sirva para el artículo: elegir cuáles valen la pena es el paso 8.
+
+**Cuánto costaría leerlas todas.** Con 10 segundos de espera, 292 páginas son casi 49 minutos (292 × 10 s). Saberlo antes es una de las razones del filtrado: leer solo las que sirven ahorra tiempo y respeta al sitio.
+
+> **En resumen** El paso 6 convirtió el catálogo que veías en una lista de 292 direcciones comprobada con código. Es la lista que el paso 7 guarda en la base de datos.
+
+
+## [Etapa 2 · Paso 7] 18. Guardar las direcciones en una base de datos (paso 7)
+
+> **Para qué:** Que la lista de 292 direcciones deje de existir solo mientras corre el programa y quede guardada en un archivo, ordenada, sin repetidos y lista para filtrar. Sin guardarla, habría que volver a pedirle los mapas al sitio cada vez que se necesite.
+
+**Qué es una base de datos.** Piensa en una hoja de cálculo (como Excel) con reglas: tiene columnas fijas, una fila por cada elemento y sabe responder preguntas como «dame las filas donde pase tal cosa». **SQLite** es una base de datos que vive en un solo archivo (aquí `datos/scraping.db`), no hay que instalar nada y viene con Python.
+
+**La tabla `urls`.** Cada dirección es una fila, y estas son sus columnas:
+
+| Columna | Qué guarda | Ejemplo |
+|---|---|---|
+| `url` | La dirección completa. Es la clave: no puede haber dos filas con la misma. | `https://www.viviendoporelmundo.com/medellin-y-guatape/` |
+| `sitio` | A qué sitio pertenece. | `viviendoporelmundo.com` |
+| `origen` | Cómo se encontró. | `sitemap` |
+| `mapa` | De qué mapa salió. | `post-sitemap.xml` |
+| `lastmod` | Fecha de su última modificación. | `2015-10-26T22:42:16+00:00` |
+| `vale_la_pena` | Si sirve para el artículo: 1 sí, 0 no, vacío si aún no se decidió. | (vacío) |
+| `motivo` | Por qué se decidió así. | (vacío) |
+| `fecha_mapeo` | Cuándo se leyó. | `2026-10-10` |
+
+**La clave (`PRIMARY KEY`).** Es como el número de cédula: no pueden existir dos personas con el mismo. Gracias a ella, guardar dos veces la misma dirección no crea una segunda fila.
+
+**Guardar sin duplicar ni borrar decisiones.** La sentencia de guardado dice: «si la dirección no existe, agrégala; si ya existe, actualiza solo de qué mapa salió y la fecha». Nunca toca `vale_la_pena` ni `motivo`, porque ahí vivirán las decisiones del filtrado y no deben perderse al volver a mapear. Se comprobó en una copia de la base: se guardaron las 292 dos veces y siguieron siendo 292, y una marca puesta a mano se conservó.
+
+**Por qué se guardan las 292 y se marca, en vez de guardar solo las que sirven:**
+
+1. Las direcciones no son contenido del blog: son el mapa. Guardarlas todas pesa casi nada (la base ocupa unos 100 KB).
+2. Marcar se puede deshacer; borrar no. Con `vale_la_pena` y `motivo` se ve por qué se descartó cada una.
+3. Si una regla falla, se corrige sin volver a pedirle los mapas al sitio.
+4. Lo que importa es qué se descarga después: solo se leerá el contenido de las páginas marcadas.
+
+**El resultado** (10 de octubre de 2026):
+
+| Qué se comprobó | Resultado |
+|---|---|
+| Filas guardadas | **292**: 244 del mapa de entradas y 48 del de páginas. |
+| Marcadas con `vale_la_pena` | 0: todas sin decidir, a la espera del paso 8. |
+| Repetidas al volver a guardar | Ninguna: sigue siendo 292. |
+| Tamaño del archivo | Unos 100 KB, en `datos/scraping.db`, fuera de git. |
+
+**Respuesta a la duda del paso 6: ¿cuántas direcciones usan carpeta?**
+
+| Mapa | Carpeta | Direcciones |
+|---|---|---|
+| Entradas | (raíz, sin carpeta) | 244 |
+| Páginas | (raíz, sin carpeta) | 30 |
+| Páginas | `/paises/` (guías de costos por país) | 16 |
+| Páginas | `/quien-es-viviendo-por-el-mundo/` | 2 |
+
+Así, 18 de las 48 páginas usan carpeta. Las 16 de `/paises/` son las guías por país que decidiste conservar como material.
+
+**Un vistazo a Colombia, solo mirando.** Con una consulta a la base se buscaron las direcciones que contienen palabras como `colombia`, `medellin`, `bogota`, `cartagena` o `tayrona`. Salieron 9, y no se marcó ninguna:
+
+| Mapa | Dirección |
+|---|---|
+| Páginas | `/paises/guia-colombia-cuanto-cuesta-viajar/` |
+| Entradas | `/bogota-y-el-fin-de-una-etapa-de-nuestro-viaje/` |
+| Entradas | `/eje-cafetero-de-colombia-a-lo-juan-valdes/` |
+| Entradas | `/llegamos-a-colombia-cali-y-san-cipriano/` |
+| Entradas | `/llegamos-al-caribe-cartagena-de-indias/` |
+| Entradas | `/medellin-y-guatape/` |
+| Entradas | `/taganga-submarinismo-lowcost/` |
+| Entradas | `/tayrona-y-palomino-lo-mejor-del-caribe-colombiano/` |
+| Entradas | `/video-con-lo-mejor-de-colombia/` |
+
+> **Ojo con este vistazo** Buscar palabras en la dirección es una pista y no un filtro: puede dejar fuera artículos que hablan de Colombia sin nombrarla en la dirección, y puede colar páginas poco útiles, como la del vídeo. El filtro de verdad es el paso 8.
+
+> **Lo que falló en el camino** En la primera ejecución falló la red (el computador no pudo resolver el nombre del sitio) y el programa se cayó con un error larguísimo. El fallo era momentáneo, pero mostró que leer el robots.txt no estaba protegido. Se corrigió: ahora, si no se puede leer, el programa avisa en una línea y no entra. Un programa debe avisar y no romperse cuando falla algo que no depende de él.
+
+> **En resumen** El paso 7 convirtió la lista de 292 direcciones en datos guardados, sin repetidos y sin decidir. Con esto termina el mapeo y empieza el filtrado.
 
 
 ---
@@ -669,7 +793,9 @@ Programar es darle al computador instrucciones muy precisas, paso a paso, como u
 | `re` | Búsqueda de patrones en textos. | `re.findall(r"<a ", texto)` encuentra cada etiqueta de enlace. | Etapa 2 · Paso 5, en el script de prueba |
 | `beautifulsoup4` y `lxml` | Leen el HTML y permiten buscar etiquetas dentro. Todavía no se usan. | Pedir «todos los párrafos dentro del artículo». | Paso 9 y 10 (pendiente) |
 | `trafilatura` | Deja solo el texto principal de un artículo. Todavía no se usa. | Quedarse con la carne y tirar el empaque. | Paso 10 (pendiente) |
-| `sqlite3` | Una base de datos que vive en un archivo. Viene con Python. Todavía no se usa. | Guardar las URLs sin repetirlas. | Paso 7 (pendiente) |
+| `sqlite3` | Una base de datos que vive en un archivo. Viene con Python. | Guardar las URLs sin repetirlas. | Etapa 2 · Paso 7 |
+| `pathlib` | Maneja rutas de archivos y carpetas. | `Path("a") / "b"` une las partes de una ruta. | Etapa 2 · Paso 7 |
+| `datetime` | Fechas y horas. | `date.today().isoformat()` da la fecha de hoy como `2026-10-10`. | Etapa 2 · Paso 7 |
 
 
 ## [Etapa 0 · Paso 1] 1. Comandos del entorno
@@ -914,19 +1040,26 @@ def _robots(base: str) -> RobotFileParser:
 | Mirar la dirección que el programa quiere visitar y apartar el nombre del sitio. | `urlparse(url)`. |
 | Buscar el cartel de ese sitio en el cuaderno. | `_robots(...)`. |
 | Comparar la dirección con las reglas del cartel y decir sí o no. | `can_fetch(USER_AGENT, url)`. |
+| Si no se puede consultar el cartel (por ejemplo, se cayó internet), no entrar. | `except requests.RequestException: return False`. |
 
 ```
 def puede_visitar(url: str) -> bool:
     p = urlparse(url)
-    return _robots(f"{p.scheme}://{p.netloc}").can_fetch(USER_AGENT, url)
+    try:
+        robots = _robots(f"{p.scheme}://{p.netloc}")
+    except requests.RequestException as e:
+        print(f"No se pudo leer el robots.txt de {p.netloc}: {e}")
+        return False
+    return robots.can_fetch(USER_AGENT, url)
 ```
 
 **Cómo funciona, paso a paso:**
 
 1. `urlparse(url)` parte la dirección en sus partes.
 2. Con el protocolo y el dominio arma la dirección base del sitio.
-3. Pide a `_robots` el robots.txt de ese sitio (ya interpretado).
-4. `can_fetch(USER_AGENT, url)` aplica la lógica de decisión de CONCEPTOS 7 y devuelve `True` o `False`.
+3. Intenta pedir a `_robots` el robots.txt de ese sitio (ya interpretado).
+4. Si falla la red y no se puede leer, imprime el motivo y devuelve `False`: sin poder comprobar el permiso, no se entra.
+5. `can_fetch(USER_AGENT, url)` aplica la lógica de decisión de CONCEPTOS 7 y devuelve `True` o `False`.
 
 | Dirección | `urlparse` la parte en | Resultado |
 |---|---|---|
@@ -955,6 +1088,7 @@ def puede_visitar(url: str) -> bool:
 | Alternativa | Por qué no |
 |---|---|
 | Comparar con una lista de rutas prohibidas escrita a mano | No sirve para otro sitio y se queda vieja. |
+| Dejar que el programa se caiga si falla la red | Pasó de verdad en la primera ejecución del paso 7: un error de decenas de líneas, difícil de entender. Con el aviso de una línea se sabe qué pasó y se puede repetir. |
 | No preguntar y confiar en no tocar nada prohibido | Un error de una sola línea haría que el programa entre a una zona prohibida sin que nadie lo note. |
 | Revisar el robots.txt a ojo antes de cada ejecución | Se olvida. Con la función, el permiso queda dentro del código. |
 
@@ -1274,5 +1408,476 @@ Es una versión resumida. Se ejecuta en la terminal: `.venv\Scripts\python.exe p
 | Imprimir solo el texto, sin los datos de la respuesta | No se vería el código de estado ni la redirección, que fue justo lo que se descubrió. |
 | Descargar muchas páginas para probar | Una sola basta para entender la respuesta, y cada petición de más es una visita más al sitio. |
 
-> **En resumen** Estas diez piezas son todo el código del ejercicio hasta el paso 5. Cada vez que se añada código nuevo, se explicará aquí con su etapa, su «Para qué», un ejemplo y la comparación con otras opciones.
+
+## [Etapa 2 · Paso 6] 11. Leer un sitemap: `leer_sitemap`
+
+> **Para qué:** Convertir un archivo de sitemap en una lista de datos que el programa pueda usar: direcciones, fechas y de qué mapa salió cada una. Con la misma función se lee el índice y cada mapa hijo.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Pedir el archivo del catálogo. | `descargar(sitemap_url, solo_html=False)`. |
+| Si no te lo dan, dejarlo y seguir. | `if not contenido: return [], []`. |
+| Abrir el catálogo y reconocer sus fichas. | `ET.fromstring(...)` y `raiz.findall(...)`. |
+| Copiar de cada ficha su dirección y su fecha a una tabla. | La función `leer(...)`, con `findtext` para la dirección y para la fecha. |
+| Anotar de qué catálogo salió cada ficha. | El dato `"mapa": sitemap_url`. |
+| Entregar dos montones: los catálogos hijos y las páginas. | `return leer("sitemap"), leer("url")`. |
+
+```
+NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+
+def leer_sitemap(sitemap_url: str) -> tuple[list[dict], list[dict]]:
+    contenido = descargar(sitemap_url, solo_html=False)
+    if not contenido:
+        return [], []
+    raiz = ET.fromstring(contenido.encode("utf-8"))
+
+    def leer(etiqueta: str) -> list[dict]:
+        return [
+            {
+                "url": e.findtext("sm:loc", "", NS).strip(),
+                "lastmod": e.findtext("sm:lastmod", "", NS).strip(),
+                "mapa": sitemap_url,
+            }
+            for e in raiz.findall(f"sm:{etiqueta}", NS)
+        ]
+
+    return leer("sitemap"), leer("url")
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `descargar(..., solo_html=False)` pide el archivo (con permiso, espera y nombre) y devuelve su texto. Se apaga el filtro de HTML porque un sitemap es XML.
+2. Si no se pudo descargar, devuelve dos listas vacías y no rompe nada.
+3. `ET.fromstring(...)` convierte el texto XML en un árbol de etiquetas que se puede recorrer. `raiz` es la etiqueta de más afuera (`sitemapindex` o `urlset`).
+4. La función interna `leer` busca todas las etiquetas de un tipo (`sitemap` o `url`) y, de cada una, saca la dirección (`loc`) y la fecha (`lastmod`).
+5. Cada ficha se guarda como un diccionario con tres datos: `url`, `lastmod` y `mapa` (de qué archivo salió).
+6. La función devuelve **dos listas**: la de mapas hijos y la de páginas. Un índice llena la primera; un mapa de páginas llena la segunda.
+
+**Ejemplo.** Lo que devuelve según el archivo que se le pase:
+
+| Se le pasa | `mapas` | `paginas` |
+|---|---|---|
+| `.../sitemap_index.xml` (el índice) | 2 elementos: el de entradas y el de páginas | vacía |
+| `.../post-sitemap.xml` | vacía | 244 elementos |
+| `.../page-sitemap.xml` | vacía | 48 elementos |
+
+Y así se ve una de las fichas que devuelve (la primera del mapa de entradas):
+
+```
+{"url": "https://www.viviendoporelmundo.com/9-beneficios-de-viajar-como-medicina-contra-el-estres/",
+ "lastmod": "2015-10-26T22:42:16+00:00",
+ "mapa": "https://www.viviendoporelmundo.com/post-sitemap.xml"}
+```
+
+**Qué es `NS`.** Las etiquetas de un sitemap pertenecen a un «dialecto» identificado por una dirección (`http://www.sitemaps.org/schemas/sitemap/0.9`). Si el lector no lo sabe, busca `url` y no encuentra nada, porque la etiqueta se llama en realidad «`url` del dialecto de sitemaps». `NS` le dice cuál es, y `sm:` es solo el apodo corto que se usa para escribirlo.
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Lista de diccionarios | Una lista donde cada elemento es un diccionario: como una tabla con una fila por ficha. | `[{"url": "a"}, {"url": "b"}]` tiene dos filas. |
+| Función dentro de otra función | Una receta pequeña que solo existe dentro de la grande y le ayuda. | `leer` vive dentro de `leer_sitemap` y se usa dos veces. |
+| Devolver dos cosas a la vez | `return a, b` entrega las dos; quien llama las recibe con `x, y = ...`. | `mapas, paginas = leer_sitemap(url)`. |
+| Espacio de nombres (`NS`) | La dirección que identifica el «dialecto» de las etiquetas. | Sin `NS`, buscar `sm:url` no encuentra nada. |
+| `findall` y `findtext` | `findall` busca todas las etiquetas de un tipo; `findtext` saca el texto de una etiqueta hija. | `e.findtext("sm:loc")` da la dirección de esa ficha. |
+| Docstring | El texto entre triples comillas al inicio de una función, que explica qué hace. | El de `leer_sitemap` dice que devuelve `(mapas, paginas)`. |
+| Convertir texto a bytes (`encode`) | Pasa el texto a bytes en UTF-8 para que el lector respete la codificación que declara el archivo. | `"Acción".encode("utf-8")` da bytes. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `xml.etree.ElementTree` (`ET`) | Un lector de etiquetas: convierte un texto XML en un árbol que se puede recorrer. | `ET.fromstring("<a><b>hola</b></a>").findtext("b")` da `hola`. |
+| `descargar` | La función del paso 5: pide el archivo con permiso, espera y nombre. | `descargar(url, solo_html=False)` devuelve el texto del archivo. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Leer el sitemap con BeautifulSoup y `lxml` | También funcionaría y se usará para el HTML. Para un XML regular y sencillo como este, `ElementTree` viene con Python y evita depender de otra librería. |
+| Buscar las direcciones con una expresión regular (`re`) | Es frágil: un comentario o un cambio de formato la rompe. Un lector de XML entiende la estructura del archivo. |
+| Copiar las direcciones a mano desde el navegador | Se hizo en el paso 4 y sirve para entender, pero no escala y es fácil equivocarse. El código lo repite en segundos y se puede comprobar (244 contra 244). |
+| Una función recursiva que devuelva solo las direcciones, como la guía | Pierde la fecha y de qué mapa salió cada dirección, y no deja ver el índice por separado. En el paso 7 se usará una versión que recorra todo. |
+| Pedir con `requests.get` directamente | Se salta el permiso, la espera y el nombre del bot. `descargar` ya los trae. |
+
+
+## [Etapa 2 · Paso 6] 12. Leer el índice y los dos mapas: `probar_sitemap.py`
+
+> **Para qué:** Leer el índice y sus dos mapas, sumar las direcciones y comprobar el resultado contra lo que se vio a ojo en el paso 4 (244). Sirve para verificar que el código lee lo mismo que el navegador y para conocer el tamaño del trabajo.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Abrir el catálogo general y anotar cuántos catálogos hijos hay. | `leer_sitemap(INDICE)`. |
+| Ir a cada catálogo hijo y copiar todas sus fichas a una lista grande. | El bucle `for m in mapas` y `todas += paginas`. |
+| Contar cuántas fichas hay y si alguna se repite. | `len(urls)` y `len(set(urls))`. |
+| Contar cuántas vienen de cada catálogo. | `Counter(p["mapa"] for p in todas)`. |
+| Mirar la ficha más vieja y la más nueva, y cuántas hay por año. | `fechas[0]`, `fechas[-1]` y `Counter(f[:4] ...)`. |
+
+```
+from collections import Counter
+from scraper import leer_sitemap
+
+INDICE = "https://www.viviendoporelmundo.com/sitemap_index.xml"
+
+mapas, sueltas = leer_sitemap(INDICE)
+todas = []
+for m in mapas:
+    _, paginas = leer_sitemap(m["url"])
+    todas += paginas
+
+urls = [p["url"] for p in todas]
+print(len(urls), len(set(urls)))
+print(Counter(p["mapa"] for p in todas))
+
+fechas = sorted(p["lastmod"] for p in todas if p["lastmod"])
+print(fechas[0], fechas[-1])
+print(Counter(f[:4] for f in fechas))
+```
+
+Es una versión resumida. Se ejecuta en la terminal: `.venv\Scripts\python.exe probar_sitemap.py`. Tarda unos 40 segundos por las esperas de 10 s.
+
+**Cómo funciona, paso a paso:**
+
+1. Lee el índice y obtiene la lista de mapas hijos.
+2. Crea una lista vacía (`todas`) y, por cada mapa hijo, lo lee y agrega sus direcciones al final.
+3. Saca solo las direcciones (`urls`) y las cuenta de dos formas: con repetidas (`len(urls)`) y sin repetidas (`len(set(urls))`).
+4. Cuenta cuántas direcciones salieron de cada mapa.
+5. Ordena las fechas para ver la más antigua y la más reciente, y cuenta cuántas hay por año (los cuatro primeros caracteres de la fecha).
+
+**El resultado real** (10 de octubre de 2026):
+
+| Dato | Lo que salió | Qué dice |
+|---|---|---|
+| Mapas hijos | 2 | Entradas y páginas. |
+| Direcciones por mapa | 244 y 48 | El de entradas coincide con el encabezado y con el paso 4. |
+| Total y distintas | 292 y 292 | No hay repetidas. |
+| Fecha más antigua y más reciente | 2015-10-26 y 2026-06-20 | El sitio lista contenido de unos once años. |
+| Peticiones y tiempo | 3 (más el robots.txt) y 38 s | Dos esperas de 10 s y una respuesta más lenta. |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Agregar al final de una lista (`+=`) | Suma los elementos de otra lista al final de la primera. | `[1, 2]` más `[3]` con `+=` queda `[1, 2, 3]`. |
+| Conjunto (`set`) | Un grupo que guarda cada valor una sola vez. Comparar su tamaño con el de la lista detecta repetidos. | `set(["a", "a", "b"])` tiene 2 elementos; la lista tenía 3. |
+| `sorted` | Devuelve una lista ordenada. | `sorted([3, 1, 2])` da `[1, 2, 3]`. |
+| Primer y último elemento | `[0]` es el primero y `[-1]` el último. | `["a", "b", "c"][-1]` da `"c"`. |
+| Rebanar un texto | `[:4]` toma los cuatro primeros caracteres. | `"2026-06-20"[:4]` da `"2026"`: el año. |
+| Guion bajo `_` | Un nombre para un valor que se recibe pero no se va a usar. | `_, paginas = leer_sitemap(url)` ignora la primera lista. |
+| Recorrido corto con corchetes | Una forma breve de recorrer una lista y sacar un dato de cada elemento. | `[p["url"] for p in todas]` saca solo las direcciones. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `collections.Counter` | Un contador: cuenta cuántas veces aparece cada cosa. | `Counter(["a", "b", "a"])` da `a: 2` y `b: 1`. |
+| `time.time()` | Un reloj: dice la hora en segundos, y restando dos lecturas se mide cuánto tardó algo. | En el script completo, `time.time() - inicio` dio unos 38 segundos. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Contar a mano en el navegador | Se hizo en el paso 4 y no se puede repetir ni comprobar. El código lo hace en 40 segundos y deja el número comprobado. |
+| Guardar todo en la base de datos y contar después | Es el paso 7. Antes conviene ver los números en pantalla para saber que la lectura es correcta. |
+| Pedir los dos mapas a la vez para ir más rápido | Rompería la espera de 10 segundos que pide el sitio. |
+| Leer también las 292 páginas para comprobar que existen | Serían casi 49 minutos y no hace falta: ahora solo interesa la lista, no el contenido. |
+
+
+## [Etapa 2 · Paso 7] 13. Abrir la base de datos: `abrir_base`
+
+> **Para qué:** Tener un solo lugar desde el que se abre la base de datos y que, si no existe, la cree con su tabla. Así todos los scripts la abren igual.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Buscar el cuaderno del proyecto en su estante fijo, junto a los demás papeles. | `RUTA_BASE = Path(__file__).parent / "datos" / "scraping.db"`. |
+| Si no existe el estante, construirlo. | `RUTA_BASE.parent.mkdir(exist_ok=True)`. |
+| Abrir el cuaderno. | `sqlite3.connect(RUTA_BASE)`. |
+| Si el cuaderno es nuevo, dibujarle las columnas. | `CREATE TABLE IF NOT EXISTS urls (...)`. |
+| Entregar el cuaderno abierto. | `return con`. |
+
+```
+RUTA_BASE = Path(__file__).parent / "datos" / "scraping.db"
+
+def abrir_base() -> sqlite3.Connection:
+    RUTA_BASE.parent.mkdir(exist_ok=True)
+    con = sqlite3.connect(RUTA_BASE)
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS urls (
+            url          TEXT PRIMARY KEY,
+            sitio        TEXT NOT NULL,
+            origen       TEXT NOT NULL,
+            mapa         TEXT,
+            lastmod      TEXT,
+            vale_la_pena INTEGER,
+            motivo       TEXT,
+            fecha_mapeo  TEXT NOT NULL
+        )
+        """
+    )
+    return con
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `RUTA_BASE` calcula dónde va el archivo: dentro de `datos/`, junto al código, sin importar en qué carpeta del computador esté el proyecto.
+2. `mkdir(exist_ok=True)` crea la carpeta `datos/` si no existe y no se queja si ya existe.
+3. `sqlite3.connect(...)` abre el archivo de la base; si no existe, lo crea.
+4. `CREATE TABLE IF NOT EXISTS` dibuja la tabla `urls` con sus columnas solo si todavía no existe, así que abrir la base muchas veces no borra nada.
+5. Devuelve la conexión (`con`), que es el canal por el que se hablará con la base.
+
+| Situación | Qué pasa |
+|---|---|
+| Primera vez: no existe `datos/scraping.db` | Se crea la carpeta, el archivo y la tabla vacía. |
+| Segunda vez en adelante | Se abre el mismo archivo con sus datos intactos. |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Ruta (`Path`) | Una dirección de archivo tratada como objeto; sus partes se unen con `/`. | `Path("datos") / "scraping.db"` da `datos\scraping.db`. |
+| `__file__` | El nombre del archivo de código que se está ejecutando. | `Path(__file__).parent` es la carpeta donde está `scraper.py`. |
+| Conexión | El canal abierto hacia la base de datos, por el que se mandan órdenes. | `con = sqlite3.connect("cosas.db")`. |
+| SQL | El idioma con el que se le dan órdenes y preguntas a una base de datos. | `CREATE TABLE`, `INSERT` y `SELECT` son órdenes de SQL. |
+| Tipos de columna | Cada columna acepta un tipo de dato: `TEXT` para texto, `INTEGER` para enteros. | `vale_la_pena INTEGER` guarda 1, 0 o nada. |
+| `PRIMARY KEY` y `NOT NULL` | La clave que no se repite, y una columna que no puede quedar vacía. | `url` es la clave; `sitio` es obligatorio. |
+| `IF NOT EXISTS` | Hazlo solo si todavía no está hecho. | Evita borrar o duplicar la tabla al abrir la base otra vez. |
+| Triples comillas | Permiten escribir un texto de varias líneas. | Así se escribe la orden SQL, que ocupa varias líneas. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `sqlite3` | El cuaderno en un archivo: guarda tablas y responde preguntas. Viene con Python. | `sqlite3.connect("cosas.db")` crea el archivo si no existe. |
+| `pathlib.Path` | Maneja rutas de archivos sin pelearse con las barras. | `Path("a") / "b"` da `a\b` en Windows. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Guardar en archivos JSON o CSV, como en la guía 1 | No evitan los repetidos ni responden preguntas como «dame las de este mapa». Una base de datos sí. |
+| Usar Supabase, como propone la guía 2 | Pide cuenta, claves y conexión a internet, y aquí no hace falta. Es una decisión registrada (D2): el SQL de SQLite se pasa casi igual si algún día se necesita. |
+| Una base distinta para cada ejercicio | El proyecto lo prohíbe: todo va a una sola base, separado por la columna `sitio`. |
+| Escribir la ruta completa, como `C:\Users\...` | Se rompería en otro computador o en otra carpeta. Calcularla a partir del archivo funciona siempre. |
+
+
+## [Etapa 2 · Paso 7] 14. Leer un sitemap completo: `urls_desde_sitemap`
+
+> **Para qué:** Leer un sitemap entero de una vez, con sus mapas hijos, y devolver todas las páginas. Evita repetir a mano el recorrido que se hizo en el paso 6.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Abrir el catálogo general y anotar los catálogos hijos. | `leer_sitemap(sitemap_url)`. |
+| Ir a cada catálogo hijo, uno por uno. | `for mapa in mapas`. |
+| Si ya hay demasiadas fichas, parar. | `if len(paginas) >= limite: break`. |
+| Pedir al hijo sus fichas y añadirlas a la lista. | `paginas += urls_desde_sitemap(mapa["url"], ...)`. |
+| Entregar la lista sin pasar del tope. | `return paginas[:limite]`. |
+
+```
+def urls_desde_sitemap(sitemap_url: str, limite: int = 500) -> list[dict]:
+    mapas, paginas = leer_sitemap(sitemap_url)
+    for mapa in mapas:
+        if len(paginas) >= limite:
+            break
+        paginas += urls_desde_sitemap(mapa["url"], limite - len(paginas))
+    return paginas[:limite]
+```
+
+**Cómo funciona, paso a paso:**
+
+1. Lee el archivo que se le da con `leer_sitemap`: obtiene mapas hijos y páginas sueltas.
+2. Por cada mapa hijo, primero comprueba si ya se llegó al tope (`limite`); si es así, se detiene (`break`).
+3. Si no, **se llama a sí misma** con la dirección de ese hijo, y suma lo que traiga a la lista.
+4. Al final devuelve la lista, cortada para no pasar del tope.
+
+**Qué es llamarse a sí misma (recursión).** Piensa en carpetas dentro de carpetas: para contar todos los archivos, abres una carpeta y, si encuentras otra, haces lo mismo con ella. La función hace igual: si un índice apunta a otro índice, lo resuelve sin saber de antemano cuántos niveles hay. Aquí solo hay dos niveles: el índice y sus dos hijos.
+
+| Se le pide | Qué hace | Resultado |
+|---|---|---|
+| `urls_desde_sitemap(indice)` | Lee el índice, luego `post-sitemap.xml` y luego `page-sitemap.xml`. | 292 páginas, cada una con su `mapa` y su `lastmod`. |
+| Con `limite=100` | Lee el índice, lee el primer hijo y, al llegar al tope, ya no pide el segundo. | Solo 100 páginas. |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Recursión | Una función que se llama a sí misma para resolver un problema por capas. | Contar archivos en carpetas dentro de carpetas: abrir una y repetir con cada subcarpeta. |
+| Tope (`limite`) | Un máximo que protege de recorridos interminables. | `limite=500` para en 500 páginas aunque el sitio tenga más. |
+| `break` | Sale de un bucle antes de que termine. | `for x in lista: if x > 3: break` se detiene al ver un número mayor que 3. |
+| Recortar una lista (`[:limite]`) | Se queda con los primeros elementos. | `[1, 2, 3, 4][:2]` da `[1, 2]`. |
+| Valor por defecto | Si no se indica el tope, vale 500. | `urls_desde_sitemap(indice)` usa `limite=500`. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Leer cada hijo a mano en el script, como en `probar_sitemap.py` | Sirve para ver paso a paso, pero repite código y no funciona si un índice apunta a otro índice. |
+| Una función que devuelva solo texto con las direcciones, como la guía | Pierde la fecha y el mapa de origen, que la base necesita guardar. |
+| No poner tope (`limite`) | Un sitio con miles de direcciones podría tardar horas. El proyecto exige un tope en todo recorrido. |
+
+
+## [Etapa 2 · Paso 7] 15. Guardar sin duplicar: `guardar_urls`
+
+> **Para qué:** Guardar las direcciones en la base sin repetirlas y sin borrar las decisiones que ya se hayan tomado sobre ellas.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Por cada ficha, mirar si ya está en el cuaderno. | `INSERT ... ON CONFLICT(url)`. |
+| Si no está, anotarla completa. | El `INSERT`. |
+| Si ya está, actualizar solo de qué catálogo salió y la fecha. | `DO UPDATE SET mapa, lastmod, fecha_mapeo`. |
+| No tocar la columna donde se anota si sirve o no. | `vale_la_pena` y `motivo` no aparecen en el `UPDATE`. |
+| Guardar los cambios de verdad. | `con.commit()`. |
+
+```
+def guardar_urls(con, paginas, sitio, origen="sitemap") -> int:
+    hoy = date.today().isoformat()
+    con.executemany(
+        """
+        INSERT INTO urls (url, sitio, origen, mapa, lastmod, fecha_mapeo)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(url) DO UPDATE SET
+            mapa = excluded.mapa,
+            lastmod = excluded.lastmod,
+            fecha_mapeo = excluded.fecha_mapeo
+        """,
+        [(p["url"], sitio, origen, p["mapa"], p["lastmod"], hoy) for p in paginas],
+    )
+    con.commit()
+    return len(paginas)
+```
+
+**Cómo funciona, paso a paso:**
+
+1. `date.today().isoformat()` obtiene la fecha de hoy en formato `2026-10-10`.
+2. `INSERT INTO urls (...) VALUES (?, ?, ...)` es la orden de agregar una fila; cada `?` es un hueco que se llena con un dato.
+3. `ON CONFLICT(url) DO UPDATE` dice qué hacer si la dirección ya existe: en vez de dar error, actualizar solo `mapa`, `lastmod` y `fecha_mapeo`.
+4. `excluded` son los valores nuevos que se intentaron guardar.
+5. La lista de abajo prepara una fila por cada página; `executemany` las manda todas de una vez.
+6. `commit()` confirma los cambios: hasta entonces no quedan escritos de verdad.
+
+| Situación | Qué pasa |
+|---|---|
+| La dirección no existe en la base | Se agrega la fila completa. |
+| La dirección ya existe | Se actualizan el mapa, la fecha de modificación y la fecha de lectura. |
+| La dirección ya existe y tiene `vale_la_pena = 1` | La marca se conserva, porque el `UPDATE` no la menciona. |
+| Se guardan las 292 dos veces (probado) | Siguen siendo 292 filas y la marca de prueba sigue ahí. |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Consulta con huecos (`?`) | Las órdenes SQL llevan `?` donde irán los datos, y los datos se pasan aparte. Evita errores y ataques. | `VALUES (?, ?)` con `("a", "b")` guarda a y b. |
+| `executemany` | Ejecuta la misma orden con muchas filas de datos. | Guarda 292 filas con una sola llamada. |
+| Tupla | Un grupo ordenado de valores entre paréntesis, como una fila. | `("url", "sitio")`. |
+| `commit` | Confirmar los cambios: hasta entonces no quedan escritos. | Sin `commit`, lo guardado se perdería al cerrar. |
+| `ON CONFLICT ... DO UPDATE` | Si hay choque con una clave que ya existe, en vez de fallar, actualiza. | Guardar dos veces la misma dirección no la duplica. |
+| `excluded` | Dentro del `UPDATE`, son los valores nuevos que se intentaron guardar. | `mapa = excluded.mapa` pone el mapa nuevo. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `sqlite3`: `executemany` y `commit` | Mandar muchas filas a la vez y confirmar el guardado. | Se guardaron las 292 direcciones en una llamada. |
+| `datetime.date` | Fechas. `date.today()` da la de hoy. | `date.today().isoformat()` da `2026-10-10`. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| `INSERT` simple, sin `ON CONFLICT` | Al guardar una dirección que ya existe, daría error o la duplicaría. |
+| Borrar la tabla y volver a llenarla cada vez | Se perderían las marcas de `vale_la_pena` y `motivo`. |
+| `INSERT OR REPLACE` | Reemplaza la fila entera y también borraría las marcas. |
+| Comprobar en Python si existe antes de insertar | Es más largo y más lento: la base lo resuelve sola en una sentencia. |
+| Guardar fila por fila con un `INSERT` por llamada | Funciona, pero `executemany` es más corto y más rápido. |
+
+
+## [Etapa 2 · Paso 7] 16. Hacer el paso 7 completo: `guardar_mapa.py`
+
+> **Para qué:** Hacer todo el paso 7 de una vez: leer el sitemap, guardar las direcciones y comprobar en la base lo que quedó.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Leer el catálogo completo. | `urls_desde_sitemap(INDICE)`. |
+| Si no se pudo leer nada, parar y avisar. | `raise SystemExit(...)`. |
+| Pasar las fichas al cuaderno. | `abrir_base()` y `guardar_urls(...)`. |
+| Hacerle preguntas al cuaderno para comprobar lo guardado. | Las consultas con `con.execute(...)`. |
+
+```
+from scraper import abrir_base, guardar_urls, urls_desde_sitemap
+
+SITIO = "viviendoporelmundo.com"
+INDICE = "https://www.viviendoporelmundo.com/sitemap_index.xml"
+
+paginas = urls_desde_sitemap(INDICE)
+if not paginas:
+    raise SystemExit("No se leyó ninguna dirección: no se guarda nada.")
+
+con = abrir_base()
+guardar_urls(con, paginas, SITIO)
+
+total = con.execute("SELECT COUNT(*) FROM urls WHERE sitio = ?", (SITIO,)).fetchone()[0]
+por_mapa = con.execute("SELECT mapa, COUNT(*) FROM urls GROUP BY mapa").fetchall()
+colombia = con.execute("SELECT url FROM urls WHERE url LIKE ?", ("%colombia%",)).fetchall()
+```
+
+Es una versión resumida. Se ejecuta en la terminal: `.venv\Scripts\python.exe guardar_mapa.py`. Tarda unos 40 segundos por las esperas de 10 s.
+
+**Cómo funciona, paso a paso:**
+
+1. Lee el sitemap completo con `urls_desde_sitemap`.
+2. Si no se leyó nada (por ejemplo, por un fallo de red), termina con un mensaje y no guarda nada.
+3. Abre la base y guarda las direcciones.
+4. Consulta la base con SQL para comprobar lo que quedó: cuántas filas hay, cuántas por mapa, cuántas usan carpeta y cuáles nombran Colombia.
+
+**Las consultas SQL, explicadas** (el SQL es el idioma con que se le hacen preguntas a la base):
+
+| Consulta | En palabras | Resultado |
+|---|---|---|
+| `SELECT COUNT(*) FROM urls` | Cuenta cuántas filas hay en la tabla. | 292 |
+| `... GROUP BY mapa` | Agrupa las filas por mapa y cuenta cada grupo. | 244 y 48 |
+| `... WHERE url LIKE '%colombia%'` | Solo las filas cuya dirección contiene «colombia» en cualquier parte. | Las direcciones que nombran Colombia |
+| `... WHERE vale_la_pena IS NULL` | Solo las filas aún sin decidir. | 292 |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| `SELECT ... FROM` | Pregunta a la base: «dame esto de esta tabla». | `SELECT url FROM urls`. |
+| `COUNT(*)` | Cuenta filas. | `SELECT COUNT(*) FROM urls` da 292. |
+| `WHERE` | Filtra: solo las filas que cumplen una condición. | `WHERE sitio = ?`. |
+| `GROUP BY` | Agrupa filas iguales para contarlas. | `GROUP BY mapa` da 244 y 48. |
+| `LIKE` y `%` | Busca texto parcial: `%` significa «cualquier cosa». | `LIKE '%colombia%'` encuentra todo lo que contenga «colombia». |
+| `fetchone` y `fetchall` | Traer una fila, o todas, del resultado de una consulta. | `fetchone()[0]` toma el primer valor de la primera fila. |
+| `raise SystemExit` | Termina el programa con un mensaje. | Se usa si no se leyó nada, para no guardar una lista vacía. |
+| Función auxiliar | Una función pequeña para no repetir código. | `corto(mapa)` deja solo el nombre del archivo del mapa. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `sqlite3`: `execute` | Manda una orden o una consulta a la base y devuelve el resultado. | `con.execute("SELECT COUNT(*) FROM urls")`. |
+| `collections.Counter` | Cuenta cuántas veces aparece cada cosa (ya vista). | En el script completo cuenta direcciones por carpeta. |
+| `urllib.parse.urlparse` | Parte una dirección (ya vista). | `urlparse(url).path` da la ruta, de donde se saca la carpeta. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Contar las filas en una hoja de Excel | Funciona para mirar, pero no se puede repetir ni comprobar con código. |
+| Guardar las direcciones en una lista de Python sin base de datos | Se pierden al cerrar el programa y habría que volver a pedirle los mapas al sitio. |
+| Leer los mapas en un script y guardar en otro | Sería leer dos veces: más peticiones al sitio y más espera, sin ninguna ganancia. |
+
+> **En resumen** Estas dieciséis piezas son todo el código del ejercicio hasta el paso 7. Cada vez que se añada código nuevo, se explicará aquí con su etapa, su «Para qué», un ejemplo y la comparación con otras opciones.
 

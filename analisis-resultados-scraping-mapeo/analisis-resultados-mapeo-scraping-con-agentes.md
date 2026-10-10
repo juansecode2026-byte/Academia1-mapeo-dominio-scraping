@@ -151,6 +151,8 @@ Se llena al cerrar las tres formas.
 | Etapa 0 de preparación | Es un paso propio. |
 | Ubicación | `analisis-resultados-scraping-mapeo/`, con copia en `.md`. |
 | Muestra de la etapa 4 | 3 páginas y luego 10. |
+| Tema inicial | Colombia: el filtro del paso 8 busca el material que sirva para un artículo sobre ese tema. |
+| Direcciones | Se guardan todas (292) y se marcan; no se borra nada. Las guías por país cuentan como material. |
 | Contenido de terceros | El informe lleva cifras y citas cortas, nunca el texto completo de los artículos. |
 
 

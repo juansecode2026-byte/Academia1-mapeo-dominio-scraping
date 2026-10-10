@@ -1,5 +1,6 @@
 """Funciones del scraper manual (guía 1). Se va completando paso a paso."""
 
+import time
 from functools import lru_cache
 from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
@@ -7,8 +8,7 @@ from urllib.robotparser import RobotFileParser
 import requests
 
 # Identifícate con honestidad: nombre del bot y un correo de contacto.
-# Cambia el correo de ejemplo por uno tuyo antes de descargar páginas (paso 5).
-USER_AGENT = "MiBotInvestigacion/1.0 (contacto: tu-correo@dominio.com)"
+USER_AGENT = "MiBotInvestigacion/1.0 (contacto: juansecode2026@gmail.com)"
 
 
 def _normalizar(texto: str) -> list[str]:
@@ -57,3 +57,36 @@ def espera_del_sitio(url: str, por_defecto: float = 2.0) -> float:
     p = urlparse(url)
     retraso = _robots(f"{p.scheme}://{p.netloc}").crawl_delay(USER_AGENT)
     return float(retraso) if retraso else por_defecto
+
+
+HEADERS = {
+    "User-Agent": USER_AGENT,
+    "Accept-Language": "es-CO,es;q=0.9,en;q=0.5",
+}
+
+
+def pedir(url: str, espera: float | None = None) -> requests.Response | None:
+    """Pide una URL y devuelve la respuesta completa, o None si no se puede o no se debe."""
+    if not puede_visitar(url):
+        print(f"El robots.txt no permite visitar {url}")
+        return None
+    time.sleep(espera_del_sitio(url) if espera is None else espera)   # no saturar el servidor
+    try:
+        r = requests.get(url, headers=HEADERS, timeout=20)
+        r.raise_for_status()                # lanza error si el código es 4xx o 5xx
+    except requests.RequestException as e:
+        print(f"No se pudo descargar {url}: {e}")
+        return None
+    return r
+
+
+def descargar(url: str, espera: float | None = None, solo_html: bool = True) -> str | None:
+    """Devuelve el contenido de la URL como texto, o None si algo falla."""
+    r = pedir(url, espera)
+    if r is None:
+        return None
+    if solo_html and "text/html" not in r.headers.get("Content-Type", ""):
+        return None                         # ignora PDFs, imágenes, etc.
+    if r.encoding in (None, "ISO-8859-1"):
+        r.encoding = r.apparent_encoding    # arregla tildes y eñes mal leídas
+    return r.text

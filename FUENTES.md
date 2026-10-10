@@ -49,8 +49,10 @@ A nuestro bot le aplica el bloque `User-agent: *`.
 - **El `sitemap_index.xml` solo tiene 2 mapas hijos:** `post-sitemap.xml` (entradas) y `page-sitemap.xml` (páginas), en `https://www.…`, ambos con última modificación el 2026-06-20. No hay mapa de categorías ni de etiquetas: el sitemap no es el plano completo del sitio, hay que compararlo con lo que se descubre siguiendo enlaces.
 - **El índice se anuncia en `http://` sin `www` pero los hijos están en `https://www`:** hay una redirección que el código debe seguir.
 - **Pedir `http://viviendoporelmundo.com/` provoca un 301 a `https://www.viviendoporelmundo.com/`** (verificado el 9 oct 2026): una página son dos peticiones y el código las hace seguidas. Pedir ya la dirección final, `https://www…`. La portada responde 200, `text/html; charset=UTF-8`, unos 240 KB de HTML y 1,86 s.
-- **`post-sitemap.xml` tiene 244 URLs** (según su encabezado, 9 oct 2026; se recontarán con código), de 2015-10-26 a 2026-06-20, ordenadas por fecha de modificación, con una columna de número de imágenes. `page-sitemap.xml`: sin contar todavía.
-- **Ninguna URL tiene carpeta** (`/blog/`, `/pais/`): todas cuelgan de la raíz. Las reglas por defecto de la guía 1 (`PATRONES_UTILES`) descartarían todas; el filtrado tendrá que usar otras pistas (el nombre de la página).
+- **Verificado con código el 10 oct 2026 (`leer_sitemap`, 3 peticiones, 38 s):** `post-sitemap.xml` tiene **244** direcciones (coincide con el encabezado) y `page-sitemap.xml` **48**; total **292, todas distintas**. Fechas de modificación de 2015-10-26 a 2026-06-20. El índice se puede pedir directamente en `https://www.viviendoporelmundo.com/sitemap_index.xml`, sin redirección.
+- **Carpetas en las direcciones (verificado en la base, 10 oct 2026):** las 244 entradas cuelgan de la raíz, sin carpeta. De las 48 páginas, 30 están en la raíz, **16 en `/paises/`** (guías de costos por país, que cuentan como material) y 2 en `/quien-es-viviendo-por-el-mundo/`. Las reglas por defecto de la guía 1 (`PATRONES_UTILES`: `/blog/`, `/noticias/`, `/articulo/`) no coinciden con ninguna de las direcciones vistas; el filtrado tendrá que usar otras pistas.
+- **Guardadas las 292 direcciones en `datos/scraping.db`** (tabla `urls`, todas con `vale_la_pena` vacío). Decisión: se guardan todas y se marcan, no se borra nada.
+- **Tema inicial: Colombia.** Vistazo previo, solo por palabras en la dirección (no es un filtro): 9 direcciones, 8 entradas y `/paises/guia-colombia-cuanto-cuesta-viajar/`. Pueden faltar artículos que hablen de Colombia sin nombrarla en la dirección.
 - **`Last Mod.` no es la fecha de publicación:** hay bloques con la misma fecha de edición (más de 50 entradas del 21 al 26 de julio de 2021; 9 del 20 de junio de 2026).
 - **Familias de contenido por el nombre:** guías de lugares, vídeos, podcasts y entrevistas, contenido comercial o de afiliación (seguros, hosting, cursos) y posibles duplicados que terminan en `-2`.
 - **`descargar()` de la guía 1 espera 2 s por defecto:** en este sitio es poco; usar `espera_del_sitio()`.
@@ -61,7 +63,7 @@ A nuestro bot le aplica el bloque `User-agent: *`.
 | Etapa | Estado |
 |---|---|
 | 1. Permisos (robots.txt y términos) | Hecho (9 oct 2026): robots.txt verificado y leído con código; términos revisados |
-| 2. Mapeo (sitemap) | En curso: índice y `post-sitemap.xml` vistos en el navegador (paso 4) y portada descargada con código (paso 5); sigue la lectura de los mapas hijos con código (paso 6) |
-| 3. Filtrado | Pendiente |
+| 2. Mapeo (sitemap) | Hecho (10 oct 2026): sitemap leído con código y 292 direcciones guardadas en SQLite (pasos 4 a 7) |
+| 3. Filtrado | Siguiente (paso 8): marcar las 292 con `vale_la_pena` y `motivo`, empezando por Colombia |
 | 4. Scraping (extracción) | Pendiente |
 | 5. Archivo, reescritura y cita | Pendiente |

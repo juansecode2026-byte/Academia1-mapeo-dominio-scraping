@@ -7,7 +7,9 @@ Extraer información de https://www.viviendoporelmundo.com/ como base para escri
 - **Entra:** un solo sitio (viviendoporelmundo.com), mapeo del dominio, filtrado, extracción, fichas con fuente y el artículo propio.
 - **No entra:** publicar en un CMS, generar imágenes ni el pipeline de blog automatizado (se sacó a otro proyecto el 8 oct 2026).
 
-**Estado actual:** viviendoporelmundo.com, etapa 2 (mapeo del sitemap), paso 6 del informe manual (leer el índice y los mapas hijos con código). Etapas 0 y 1 hechas. El detalle por etapa está en la ficha del sitio en `FUENTES.md`.
+**Tema inicial del artículo: Colombia.** Las guías por país (`/paises/…`) cuentan como material, igual que las entradas.
+
+**Estado actual:** viviendoporelmundo.com, etapa 3 (filtrado), paso 8 del informe manual: marcar las 292 URLs guardadas con `vale_la_pena` y `motivo`, empezando por Colombia. Etapas 0, 1 y 2 hechas. El detalle por etapa está en la ficha del sitio en `FUENTES.md`.
 
 ## Documentación del proyecto
 
@@ -49,16 +51,20 @@ Academia Mapeo Dominio y Scraping/
 ├── CLAUDE.md                 Este archivo
 ├── FUENTES.md                Ficha de cada sitio
 ├── DECISIONES.md             Registro de decisiones
-├── scraper.py                Funciones del scraper (hoy: robots.txt, espera y descarga); se completa paso a paso
+├── scraper.py                Funciones del scraper (hoy: robots.txt, espera, descarga, sitemap y base de datos); se completa paso a paso
 ├── probar_robots.py          Prueba del robots.txt con rutas permitidas y prohibidas
 ├── probar_descarga.py        Descarga la portada y muestra la respuesta del sitio (paso 5)
+├── probar_sitemap.py         Lee el índice del sitemap y sus dos mapas, y cuenta las direcciones (paso 6)
+├── guardar_mapa.py           Lee el sitemap, guarda las direcciones en la base y comprueba lo guardado (paso 7)
 ├── .gitignore                Excluye .venv, .env, desktop.ini, __pycache__, datos y resultados
-├── datos/                    (aún no existe) scraping.db — fuera de git
+├── datos/                    scraping.db (292 URLs guardadas, tabla `urls`) — fuera de git
 ├── analisis-resultados-scraping-mapeo/
 │   ├── analisis-resultados-mapeo-scraping-manual.md         ← manual con código: leer y actualizar (checklist de pasos)
 │   ├── analisis-resultados-mapeo-scraping-con-devtools.md   ← con DevTools (navegador, F12): leer y actualizar
 │   ├── analisis-resultados-mapeo-scraping-con-agentes.md    ← con agentes: leer y actualizar; lleva la comparación de las tres formas
-│   └── *_AAAA-MM-DD_vN.html                                  Copia con diseño, solo respaldo
+│   ├── *_AAAA-MM-DD_vN.html                                  Copia con diseño de cada informe, solo respaldo
+│   └── scraping-manual_2026-10-08_v5.html y scraping-con-agentes_F2_2026-10-08.html
+│                                                              Guías de las fases 1 y 2, enlazadas entre sí (respaldo, no leer; su texto está en documentacion/*.md)
 └── documentacion/
     ├── scraping-manual.md          Guía 1 (v5, con ejercicio)  ← leer
     ├── scraping-con-agentes.md     Guía 2                       ← leer
@@ -74,11 +80,11 @@ Archivos previstos por las guías (aún no existen):
 | `herramientas.py` | 2 | Envuelve las funciones de `scraper.py` como herramientas del agente |
 | `pipeline.py` | 2 | Opción A: código manda, IA en dos puntos (selector y analista) |
 
-Tablas previstas en `datos/scraping.db` (se crean al construir el mapeo):
+Tablas de `datos/scraping.db` (`urls` existe desde el paso 7; `fichas` se creará al extraer):
 
 | Tabla | Sale de | Columnas clave |
 |---|---|---|
-| `urls` | Mapeo (sitemap o rastreo) | `url` (única), `sitio`, `origen` (`sitemap`/`rastreo`), `vale_la_pena`, `fecha_mapeo` |
+| `urls` | Mapeo (sitemap o rastreo) | `url` (clave, única), `sitio`, `origen` (`sitemap`/`rastreo`), `mapa` (de qué sitemap salió), `lastmod`, `vale_la_pena` (1 sí, 0 no, vacío sin decidir), `motivo`, `fecha_mapeo` |
 | `fichas` | Extracción y análisis | `url` (única), `sitio`, `titulo`, `autor`, `fecha_publicacion`, `fecha_consulta`, `texto`, `resumen_propio`, `cita`, `estado` (`pendiente_revision`/`aprobada`/`descartada`) |
 
 Para no duplicar se usa `INSERT ... ON CONFLICT(url) DO UPDATE`.
@@ -122,6 +128,8 @@ Las de cada sitio están en su ficha de `FUENTES.md`. Aquí solo las generales:
 - **Un `sitemap_index.xml` es un índice,** no una lista de páginas: hay que abrir los mapas hijos.
 - **Un bot con nombre propio casi nunca aparece en el robots.txt:** le aplica el bloque `User-agent: *`.
 - **El lector de robots.txt de Python (`urllib.robotparser`) corta el bloque en una línea en blanco** y descarta las reglas siguientes. `scraper.py` ya lo corrige con `_normalizar`. Al leer el robots.txt de un sitio nuevo, comprobar siempre con rutas que se sabe que están prohibidas (`probar_robots.py`).
+- **Si falla la red al leer el robots.txt, `puede_visitar` avisa y devuelve `False`:** sin poder comprobar el permiso, no se entra. Un fallo momentáneo de internet no debe tumbar el programa con un error largo.
+- **Al volver a guardar URLs, `guardar_urls` no toca `vale_la_pena` ni `motivo`:** las decisiones del filtrado sobreviven a un nuevo mapeo.
 - **Los enlaces entre documentos** apuntan a los `.md`; si se renombran, hay que actualizarlos.
 
 ## Flujo de trabajo

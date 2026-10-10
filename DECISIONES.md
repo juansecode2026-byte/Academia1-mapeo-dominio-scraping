@@ -86,3 +86,12 @@ Estados: **Aceptada** · **Rechazada** · **Aplazada** (con condición de activa
 - **Motivo:** DevTools muestra qué ve el código al leer una página y permite comparar una lista de enlaces hecha a mano con la del sitemap. Alcance distinto: una página por vez, no el dominio completo.
 - **Misma muestra y ritmo:** 3 páginas y luego 10, con ritmo tranquilo, aunque una visita con el navegador sea una visita humana; así la comparación es justa y respetuosa.
 - **Actualiza a D10:** donde decía «dos informes», ahora son tres.
+
+## D12 · Guardar las 292 direcciones y marcar; las guías por país cuentan; tema inicial Colombia
+
+- **Fecha:** 10 oct 2026 · **Estado:** Aceptada
+- **Contexto:** al terminar el mapeo, el usuario planteó filtrar para no guardar páginas que no interesan; solo quiere material de artículos para escribir los suyos.
+- **Opciones:** guardar solo las que pasen un filtro · guardar todas y marcarlas.
+- **Decisión:** se guardan las 292 direcciones en `datos/scraping.db`, tabla `urls`, y el filtrado del paso 8 las marca con `vale_la_pena` y `motivo` sin borrar nada. Las 16 guías por país (`/paises/…`) del mapa de páginas cuentan como material. El tema inicial del artículo es **Colombia**; el filtro por tema se apoya en el título y el contenido, no solo en la dirección.
+- **Motivo:** las direcciones no son contenido del blog, son el mapa; marcar se puede deshacer y borrar no; se evita volver a pedirle los mapas al sitio; y lo que importa es qué contenido se descarga, que solo será el de las páginas marcadas.
+- **Cambia la tabla `urls`:** se añaden las columnas `mapa`, `lastmod` y `motivo` a las que había previstas.

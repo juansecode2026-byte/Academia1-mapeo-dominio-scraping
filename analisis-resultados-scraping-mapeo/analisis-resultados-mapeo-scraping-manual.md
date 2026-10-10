@@ -2,9 +2,9 @@
 
 Registro de lo que sale en cada etapa del ejercicio sobre viviendoporelmundo.com, hecho a mano con Python y guiado paso a paso.
 
-**Versión** v4 · **Fecha** 10 de octubre de 2026 · **Estado** Etapas 0, 1 y 2 hechas
+**Versión** v5 · **Fecha** 10 de octubre de 2026 · **Estado** Etapas 0 a 3 hechas
 
-> Fuente original: `analisis-resultados-mapeo-scraping-manual_2026-10-10_v4.html` (respaldo, no leer). Este `.md` es la copia para leer y actualizar.
+> Fuente original: `analisis-resultados-mapeo-scraping-manual_2026-10-10_v5.html` (respaldo, no leer). Este `.md` es la copia para leer y actualizar.
 
 ## Para qué sirve este informe
 
@@ -49,11 +49,11 @@ Los pasos 1 a 7 son el mapeo; del 9 al 11, el scraping. El filtrado (paso 8) es 
 - [x] **Paso 5. Descargar una página con código** — Terminal · Etapa 2 · Qué es una petición HTTP y el HTML crudo.
 - [x] **Paso 6. Leer el índice y los mapas hijos** — Terminal · Etapa 2 · Cómo se pasa de un índice a la lista de URLs.
 - [x] **Paso 7. Guardar las URLs en SQLite** — Terminal · Etapa 2 · Qué es una base de datos y cómo se evita duplicar.
-- [ ] **Paso 8. Filtrar las URLs** *(en curso)* — Terminal · Etapa 3 · Dónde fallan las reglas fijas.
-- [ ] **Paso 9. Inspeccionar el HTML de un artículo** — Navegador (F12) · Etapa 4 · La estructura de una página.
+- [x] **Paso 8. Filtrar las URLs** — Terminal · Etapa 3 · Dónde fallan las reglas fijas.
+- [ ] **Paso 9. Inspeccionar el HTML de un artículo** *(en curso)* — Navegador (F12) · Etapa 4 · La estructura de una página.
 - [ ] **Paso 10. Extraer el texto de una página** — Terminal · Etapa 4 · Qué hacen BeautifulSoup y trafilatura.
 - [ ] **Paso 11. Guardar la ficha y la cita** — Terminal · Etapa 5 · Cómo queda un dato citable.
-- [ ] **Paso 12. Muestra de 3 y luego 10 páginas** — Terminal · Etapas 4 y 5 · Qué pasa al repetir a escala.
+- [ ] **Paso 12. Muestra de 3 y luego las 8 de Colombia** — Terminal · Etapas 4 y 5 · Qué pasa al repetir a escala.
 
 
 ## Esqueleto de cada etapa
@@ -125,21 +125,21 @@ Las mismas en los tres informes. Al final del informe de agentes se comparan las
 
 | Bloque | Registro |
 |---|---|
-| Qué se hizo | Siguiente (paso 8): marcar las 292 direcciones con `vale_la_pena` y `motivo`, empezando por el tema Colombia. Se guardan todas y se marca, no se borra. |
-| Resultado | Pendiente. |
-| Costo (tiempo, peticiones, tokens) | Pendiente. |
-| Qué falló o sorprendió | Pendiente. |
-| Conclusión | Pendiente. |
+| Qué se hizo | Etapa cerrada. Paso 8 hecho (10 oct 2026): las 292 direcciones marcadas con `vale_la_pena` y `motivo` usando reglas fijas sobre el nombre de la dirección y el mapa de origen (opciones A, B, C y D elegidas por el usuario), con `clasificar()` en `filtrar_colombia.py`. Cuentan todos los lugares de Colombia; no cuentan los vídeos; solo información tipo blog. |
+| Resultado | **8 sí** y **284 no**. Las 8: la guía `/paises/guia-colombia-cuanto-cuesta-viajar/` y 7 entradas (Bogotá, Eje Cafetero, Cali y San Cipriano, Cartagena, Medellín y Guatapé, Taganga, Tayrona y Palomino). Descartes por motivo: 196 de otro tema, 32 páginas fijas, 15 vídeos o fotomontajes, 11 podcasts, 11 entrevistas, 10 de venta o afiliación y 9 posibles duplicados. El vídeo de Colombia quedó fuera, como se pidió. |
+| Costo (tiempo, peticiones, tokens) | 0 peticiones al sitio y menos de un segundo. 0 tokens. Leer las 8 marcadas costará unos 80 segundos, en vez de casi 49 minutos para las 292. |
+| Qué falló o sorprendió | 1) La regla de «posible duplicado» (termina en `-2`) se equivoca: atrapa partes de una serie, como `…-1-de-2`, `…-2-de-2` o `3-cosas-imprescindibles-mochila-2`, que no son copias. 2) La regla de venta descarta artículos que solo mencionan una palabra comercial, como `salud-vacunas-y-seguro-de-viaje-vuelta-al-mundo`, que posiblemente es información práctica. 3) La regla de tema no ve artículos que hablan de Colombia sin nombrarla en la dirección: esas omisiones no se pueden contar sin leer las páginas. 4) El script se cayó al final la primera vez, en la parte que muestra los dudosos, porque la portada no tiene nombre de página; las marcas ya estaban guardadas y se corrigió. |
+| Conclusión | Las reglas fijas sirven para un primer corte barato y explicable, y sus errores no tocan a las 8 de Colombia, que son claras por su nombre. Pero fallan donde el nombre engaña y no ven lo que no está en la dirección: es el punto débil que se comparará con el agente. |
 
 
 ### Etapa 4. Scraping
 
 | Bloque | Registro |
 |---|---|
-| Qué se hizo | Pasos 9, 10 y 12: muestra de 3 y luego 10 páginas, con 10 s de espera. |
-| Resultado | Pendiente. |
-| Costo (tiempo, peticiones, tokens) | Pendiente. |
-| Qué falló o sorprendió | Pendiente. |
+| Qué se hizo | En curso. Paso 9 (10 oct 2026): se abrió `/medellin-y-guatape/` en DevTools y se localizó el título; faltan la firma, la fecha y los párrafos. Pasos 10 y 12 pendientes: extraer el texto con código y hacerlo con una muestra de 3 y con las 8 marcadas, con 10 s de espera. |
+| Resultado | Estructura localizada en `/medellin-y-guatape/`: `main.content` contiene un `article` (clase con `post-4906`, `category-america`, `category-colombia` y `tag-cronicas-de-viaje`), que lleva `header.entry-header` con `h1.entry-title` (texto: «Medellín y la gran sorpresa, Guatapé») y `p.entry-meta` (firma y fecha, sin abrir todavía), y después `div.entry-content`, el cuerpo del texto. En la página se ven la firma «BY … DE VIVIENDO POR EL MUNDO» y «9 comentarios». |
+| Costo (tiempo, peticiones, tokens) | 0 peticiones del programa: una visita humana con el navegador. 0 tokens. |
+| Qué falló o sorprendió | 1) El título («Medellín y la gran sorpresa, Guatapé») no coincide con el nombre de la dirección (`medellin-y-guatape`): otra razón por la que filtrar por el nombre no basta. 2) La etiqueta `article` declara sus categorías (`category-colombia`): es una señal de tema mucho más fiable que el nombre de la dirección y abre la opción de usar la página de la categoría «Colombia». 3) Dentro de `entry-content` hay elementos que no son texto del artículo, como los botones de compartir. 4) El buscador de DevTools dio «1 de 8» para «H1» porque cuenta toda aparición del texto, no solo etiquetas; la primera era la correcta. |
 | Conclusión | Pendiente. |
 
 
@@ -162,7 +162,8 @@ Las mismas en los tres informes. Al final del informe de agentes se comparan las
 | Etapa 1 reabierta | Sí: los términos de uso pendientes se cierran antes de extraer contenido. |
 | Etapa 0 de preparación | Es un paso propio. |
 | Ubicación | `analisis-resultados-scraping-mapeo/`, con copia en `.md`. |
-| Muestra de la etapa 4 | 3 páginas y luego 10. |
+| Muestra de la etapa 4 | 3 páginas y luego las 8 marcadas de Colombia. |
+| Filtro elegido | Opciones A, B, C y D: mapa de origen, palabras de Colombia en la dirección, familia por el nombre y carpeta `/paises/`. Cuentan todos los lugares de Colombia; no cuentan los vídeos; solo información tipo blog. |
 | Tema inicial | Colombia: el filtro del paso 8 busca el material que sirva para un artículo sobre ese tema. |
 | Direcciones | Se guardan todas (292) y se marcan; no se borra nada. Las guías por país cuentan como material. |
 | Contenido de terceros | El informe lleva cifras y citas cortas, nunca el texto completo de los artículos. |
@@ -176,6 +177,7 @@ Las mismas en los tres informes. Al final del informe de agentes se comparan las
 | v2 | 9 de octubre de 2026 | `analisis-resultados-mapeo-scraping-manual_2026-10-09_v2.html` | Cierra la etapa 0 (entorno) y la etapa 1 (permisos): robots.txt verificado y leído con código, términos de uso revisados, sección CONCEPTOS con los puntos 1 a 13. |
 | v3 | 9 de octubre de 2026 | `analisis-resultados-mapeo-scraping-manual_2026-10-09_v3.html` | Agrega la tercera forma (DevTools) al contexto: tabla de las tres formas y métricas compartidas por tres informes. |
 | v4 | 10 de octubre de 2026 | `analisis-resultados-mapeo-scraping-manual_2026-10-10_v4.html` | Cierra la etapa 2 (mapeo): sitemap leído con código (292 direcciones) y guardado en la base de datos `datos/scraping.db`; conceptos 14 a 18 y sección de códigos con 16 piezas. Tema inicial: Colombia. |
+| v5 | 10 de octubre de 2026 | `analisis-resultados-mapeo-scraping-manual_2026-10-10_v5.html` | Cierra la etapa 3 (filtrado) con reglas fijas (opciones A, B, C y D): 8 direcciones de Colombia marcadas como útiles y 284 descartadas con su motivo; concepto 19 y piezas de código 17 y 18. |
 
 Cada vez que se cierre un paso o una etapa se actualiza este informe y se guarda una versión nueva con la fecha en el nombre.
 
@@ -743,6 +745,124 @@ Así, 18 de las 48 páginas usan carpeta. Las 16 de `/paises/` son las guías po
 > **Lo que falló en el camino** En la primera ejecución falló la red (el computador no pudo resolver el nombre del sitio) y el programa se cayó con un error larguísimo. El fallo era momentáneo, pero mostró que leer el robots.txt no estaba protegido. Se corrigió: ahora, si no se puede leer, el programa avisa en una línea y no entra. Un programa debe avisar y no romperse cuando falla algo que no depende de él.
 
 > **En resumen** El paso 7 convirtió la lista de 292 direcciones en datos guardados, sin repetidos y sin decidir. Con esto termina el mapeo y empieza el filtrado.
+
+
+## [Etapa 3 · Paso 8] 19. Filtrar con reglas fijas: elegir qué leer (paso 8)
+
+> **Para qué:** Separar, entre las 292 direcciones, las pocas que sirven para un artículo sobre Colombia, y dejar escrito por qué se descartó cada una de las demás. Así solo se lee lo útil: se ahorra tiempo y se respeta al sitio.
+
+**La analogía.** Tienes el catálogo de la biblioteca completo (292 fichas) y vas a escribir sobre Colombia. Antes de sacar libros de los estantes, pasas por el catálogo con un lápiz y pones al lado de cada ficha un «sí» o un «no», con una nota corta del porqué. No abres ningún libro: decides solo por el nombre y por la sección donde está.
+
+**Qué elegiste filtrar** (opciones A, B, C y D):
+
+| Opción | Regla | Ejemplo |
+|---|---|---|
+| A. Mapa de origen | Las páginas fijas (contacto, aviso legal…) no son artículos. | `/aviso-legal-…/` → no. |
+| D. Carpeta `/paises/` | Excepción a la regla A: las guías por país sí cuentan como material. | `/paises/guia-colombia-cuanto-cuesta-viajar/` → sigue. |
+| C. Familia por el nombre | Fuera lo que no es información tipo blog: vídeos y fotomontajes, podcasts, entrevistas, venta o afiliación y posibles duplicados (terminan en `-2`). | `/video-con-lo-mejor-de-colombia/` → no. |
+| B. Palabras de Colombia | Sí, si el nombre contiene el país o uno de sus lugares: Colombia, Medellín, Bogotá, Cartagena, Cali, Tayrona, Palomino, Taganga, Guatapé, Eje Cafetero o San Cipriano. | `/medellin-y-guatape/` → sí. |
+
+**La lógica: las reglas se aplican en orden, y la primera que decide, decide.** Por eso el orden importa:
+
+1. ¿Es una página fija (del mapa de páginas y fuera de `/paises/`)? → **no**, «página fija».
+2. ¿El nombre tiene una pista de familia (vídeo, podcast, entrevista, venta)? → **no**, con esa familia.
+3. ¿El nombre termina en `-2`? → **no**, «posible duplicado».
+4. ¿El nombre contiene un lugar de Colombia? → **sí**, con los lugares encontrados.
+5. Si nada de lo anterior → **no**, «otro tema».
+
+**Tres direcciones, paso a paso:**
+
+| Dirección | Qué regla decide | Resultado |
+|---|---|---|
+| `/medellin-y-guatape/` | Pasa las reglas 1 a 3; en la 4 encuentra `medellin` y `guatape`. | Sí · Colombia |
+| `/video-con-lo-mejor-de-colombia/` | La regla 2 encuentra `video` antes de llegar a la de Colombia. | No · vídeo |
+| `/workaway-en-puerto-escondido-mexico-1-de-2/` | La regla 3 ve que termina en `-2`. | No · posible duplicado (y aquí la regla se equivoca: es la parte 1 de una serie) |
+
+**El resultado** (10 de octubre de 2026, sin ninguna petición al sitio):
+
+| Decisión y motivo | Direcciones |
+|---|---|
+| **Sí: Colombia** | **8** |
+| No: otro tema (no nombra Colombia en la dirección) | 196 |
+| No: página fija | 32 |
+| No: vídeo o fotomontaje | 15 |
+| No: podcast | 11 |
+| No: entrevista | 11 |
+| No: venta o afiliación | 10 |
+| No: posible duplicado | 9 |
+| Total | 292 |
+
+**Las 8 que valen la pena:**
+
+| Dirección | Lugares encontrados | Tipo |
+|---|---|---|
+| `/paises/guia-colombia-cuanto-cuesta-viajar/` | colombia | Guía por país |
+| `/bogota-y-el-fin-de-una-etapa-de-nuestro-viaje/` | bogota | Entrada |
+| `/eje-cafetero-de-colombia-a-lo-juan-valdes/` | cafetero, colombia | Entrada |
+| `/llegamos-a-colombia-cali-y-san-cipriano/` | cali, cipriano, colombia | Entrada |
+| `/llegamos-al-caribe-cartagena-de-indias/` | cartagena | Entrada |
+| `/medellin-y-guatape/` | guatape, medellin | Entrada |
+| `/taganga-submarinismo-lowcost/` | taganga | Entrada |
+| `/tayrona-y-palomino-lo-mejor-del-caribe-colombiano/` | colombiano, palomino, tayrona | Entrada |
+
+**Por qué importa:** leer las 292 costaba casi 49 minutos con las esperas; leer estas 8 costará unos 80 segundos.
+
+**Dónde se equivocan las reglas.** Es lo que la guía 1 llama el punto débil del modo manual: las reglas solo ven el nombre, no el contenido.
+
+| Regla | Error que comete | Ejemplo |
+|---|---|---|
+| Posible duplicado (`-2`) | Confunde partes de una serie con copias. | `…-1-de-2`, `…-2-de-2`, `3-cosas-imprescindibles-mochila-2` (que parece la segunda parte de otra entrada). |
+| Venta o afiliación | Descarta artículos que solo mencionan una palabra comercial. | `salud-vacunas-y-seguro-de-viaje-vuelta-al-mundo` posiblemente es información práctica de viaje. |
+| Palabras de Colombia | No ve artículos que hablan de Colombia sin nombrarla en la dirección. | No se puede saber cuántos son sin leer las páginas. |
+
+Ninguno de esos errores toca a las 8 de Colombia, que son claras por su nombre. El riesgo real está en las **omisiones** de la última fila, y es lo que el agente (o el buscador del sitio) podrá mostrar en la comparación.
+
+> **Las marcas son revisables** Cada dirección guarda su decisión y su motivo, que empieza por «regla:». Si vuelves a ejecutar el filtro, solo se recalculan esas marcas; si algún día marcas una dirección a mano, el filtro la respeta.
+
+> **En resumen** El paso 8 redujo 292 direcciones a 8 candidatas de Colombia, sin pedir nada al sitio, y dejó escrito el motivo de cada descarte. Con esto termina el filtrado; lo siguiente es abrir uno de esos artículos y ver cómo está hecho por dentro.
+
+
+## [Etapa 4 · Paso 9] 20. Leer la estructura de un artículo: el árbol de etiquetas (paso 9)
+
+> **Para qué:** Descubrir dónde vive cada dato de un artículo (título, firma, fecha, texto) dentro del HTML, antes de escribir código que lo saque. Sin esa lectura, el programa no sabe qué parte de la página es el artículo y cuál es menú, publicidad o botones.
+
+**La analogía.** Una página web es como un árbol genealógico. Cada etiqueta es una persona: tiene un **padre** (la etiqueta que la envuelve), **hijos** (las que lleva dentro) y **hermanos** (las que están a su lado, dentro del mismo padre). Para encontrar el título, se sigue el parentesco: «el título es hijo del encabezado, que es hijo del artículo, que es hijo del contenido principal».
+
+**Lo que se vio en `/medellin-y-guatape/`** (10 de octubre de 2026, con DevTools, pestaña Elements). Así queda el árbol, de afuera hacia adentro:
+
+```
+main.content
+├── div.breadcrumb              → «Inicio / América / Colombia / Medellín…» (el camino de migas)
+└── article.post-4906 … entry   → el artículo completo
+    ├── header.entry-header
+    │   ├── h1.entry-title      → «Medellín y la gran sorpresa, Guatapé»
+    │   └── p.entry-meta        → firma y fecha (por abrir)
+    └── div.entry-content       → el cuerpo del texto
+        └── div.addtoany_share… → botones de compartir (no es texto del artículo)
+```
+
+| Etiqueta | Qué es | Para qué sirve aquí |
+|---|---|---|
+| `main.content` | La zona principal de la página. | Deja fuera el menú, el pie de página y la barra lateral. |
+| `article` | Un artículo completo e independiente. | Marca dónde empieza y dónde termina lo que nos interesa. |
+| `header.entry-header` | El encabezado del artículo. | Agrupa el título y la firma. |
+| `h1.entry-title` | El título principal. | Aquí está el título que se citará. |
+| `p.entry-meta` | Los datos del artículo. | Ahí se esperan la firma y la fecha. |
+| `div.entry-content` | El cuerpo. | Aquí están los párrafos del texto. |
+
+**Etiqueta y clase.** `h1` es el *tipo* de etiqueta (título principal). `entry-title` es su *clase*: un apellido que le puso quien hizo la página, y que sirve para reconocerla entre muchas. Se escribe `h1.entry-title`, con un punto entre el tipo y la clase.
+
+**Cómo se le pediría al código.** Con la librería que lee HTML se le dice «dame la etiqueta `h1` con clase `entry-title`, dentro del `article`». Es la lógica del paso 3 de la guía 1: `article h1.entry-title`. Aquí la estructura coincide con el ejemplo de la guía (`<article><h1>…`), por lo que ese tipo de reglas probablemente funcionaría en este sitio, y solo en este: otro sitio tendría otros nombres.
+
+**Tres hallazgos de la captura:**
+
+1. **El título no es el nombre de la dirección.** La dirección es `medellin-y-guatape`, y el título es «Medellín y la gran sorpresa, Guatapé». Es otra razón por la que filtrar por el nombre no basta.
+2. **La etiqueta `<article>` declara a qué categorías pertenece.** Su clase incluye `category-america`, `category-colombia` y `tag-cronicas-de-viaje`. Es decir, la propia página dice «yo soy de Colombia», una señal de tema mucho más fiable que adivinarlo por el nombre. Esto abre una vía nueva para el filtro: leer esas clases, o pedir la página de la categoría «Colombia», que agrupa sus artículos.
+3. **Dentro del cuerpo hay cosas que no son texto del artículo**, como el bloque «¡Comparte este artículo!» con los botones de WhatsApp, Facebook y Twitter. Un extractor tiene que saltárselos.
+
+> **Sobre el buscador de DevTools** Al buscar «H1» salió «1 de 8». Eso no significa que haya 8 títulos: DevTools cuenta toda aparición de ese texto (etiquetas, clases, estilos). La primera, que es la que se vio, era la etiqueta correcta. Para contar solo las etiquetas hay que buscar `<h1`.
+
+> **Lo que falta de este paso** Abrir `p.entry-meta` para ver la firma y la fecha, y localizar el primer párrafo dentro de `div.entry-content`. El paso 9 sigue en curso hasta tenerlos.
 
 
 ---
@@ -1879,5 +1999,171 @@ Es una versión resumida. Se ejecuta en la terminal: `.venv\Scripts\python.exe g
 | Guardar las direcciones en una lista de Python sin base de datos | Se pierden al cerrar el programa y habría que volver a pedirle los mapas al sitio. |
 | Leer los mapas en un script y guardar en otro | Sería leer dos veces: más peticiones al sitio y más espera, sin ninguna ganancia. |
 
-> **En resumen** Estas dieciséis piezas son todo el código del ejercicio hasta el paso 7. Cada vez que se añada código nuevo, se explicará aquí con su etapa, su «Para qué», un ejemplo y la comparación con otras opciones.
+
+## [Etapa 3 · Paso 8] 17. Decidir una dirección: `clasificar`
+
+> **Para qué:** Tomar una dirección y su mapa, aplicar las reglas elegidas en orden y devolver la decisión (sí o no) con su motivo. Es el corazón del filtrado.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Leer el nombre de la ficha y ver en qué sección del catálogo está. | Partir la dirección en carpeta y nombre. |
+| Si es una ficha de la sección de páginas fijas (y no es una guía por país), poner «no». | Regla A + D: `return 0, "regla: página fija..."`. |
+| Si el nombre suena a vídeo, podcast, entrevista o venta, poner «no». | Regla C: el bucle sobre `FAMILIAS`. |
+| Si termina en «-2», sospechar que es una copia y poner «no». | `if slug.endswith("-2")`. |
+| Si el nombre trae un lugar de Colombia, poner «sí» y anotar cuál. | Regla B: `palabras & LUGARES_COLOMBIA`. |
+| Si no pasa nada de eso, poner «no» porque es de otro tema. | El último `return 0, "regla: otro tema..."`. |
+
+```
+LUGARES_COLOMBIA = {"colombia", "colombiano", "colombiana", "medellin", "bogota",
+                    "cartagena", "cali", "tayrona", "palomino", "taganga",
+                    "guatape", "cafetero", "cipriano"}
+
+FAMILIAS = [
+    ("vídeo o fotomontaje", ("video", "fotomontaje")),
+    ("podcast", ("podcast",)),
+    ("entrevista", ("entrevista",)),
+    ("venta o afiliación", ("seguro", "hosting", "siteground", "curso", "afiliado",
+                            "afiliados", "monetiza", "descuento", "criptomonedas",
+                            "ingresos", "regalos")),
+]
+
+def clasificar(url: str, mapa: str) -> tuple[int, str]:
+    partes = [p for p in urlparse(url).path.split("/") if p]
+    carpeta = partes[0] if len(partes) > 1 else ""
+    slug = partes[-1] if partes else ""
+    palabras = set(slug.split("-"))
+
+    if mapa.endswith("page-sitemap.xml") and carpeta != "paises":
+        return 0, "regla: página fija, no es un artículo"
+    for familia, pistas in FAMILIAS:
+        if palabras & set(pistas):
+            return 0, f"regla: {familia}"
+    if slug.endswith("-2"):
+        return 0, "regla: posible duplicado (termina en -2)"
+
+    encontradas = sorted(palabras & LUGARES_COLOMBIA)
+    if encontradas:
+        tipo = "guía por país" if carpeta == "paises" else "entrada"
+        return 1, f"regla: Colombia ({', '.join(encontradas)}) · {tipo}"
+    return 0, "regla: otro tema (no nombra Colombia en la dirección)"
+```
+
+**Cómo funciona, paso a paso:**
+
+1. Parte la dirección en trozos por las barras: la carpeta (si la hay) y el nombre de la página (*slug*).
+2. Parte el nombre por los guiones y lo convierte en un **conjunto de palabras**: `medellin-y-guatape` da `{medellin, y, guatape}`.
+3. Aplica las reglas en orden. Cada una, si se cumple, **devuelve la decisión al instante** con `return`, y las de abajo ya no se miran.
+4. La comparación de palabras usa `&` (la intersección de conjuntos): «las palabras que están en los dos grupos». Comparar palabras enteras evita falsos aciertos, como encontrar `cali` dentro de `calidad`.
+5. Si encuentra lugares de Colombia, los escribe en el motivo para que se vea por qué entró.
+
+| Se le da | Devuelve |
+|---|---|
+| `/medellin-y-guatape/` del mapa de entradas | `(1, "regla: Colombia (guatape, medellin) · entrada")` |
+| `/video-con-lo-mejor-de-colombia/` | `(0, "regla: vídeo o fotomontaje")` |
+| La portada, del mapa de páginas | `(0, "regla: página fija, no es un artículo")` |
+| `/paises/guia-colombia-cuanto-cuesta-viajar/` | `(1, "regla: Colombia (colombia) · guía por país")` |
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| Conjunto (`set`) | Un grupo sin repetidos, ideal para preguntar «¿está esto aquí?». | `set("medellin-y-guatape".split("-"))` da `{medellin, y, guatape}`. |
+| Intersección (`&`) | Lo que está en los dos conjuntos a la vez. | `{medellin, y, guatape} & {medellin, bogota}` da `{medellin}`. |
+| Salir con `return` dentro de un `if` | En cuanto una regla decide, la función termina y no mira las demás. Por eso importa el orden. | Un vídeo de Colombia sale en la regla de vídeos y no llega a la de Colombia. |
+| Lista de pares | Una lista cuyos elementos son pares (familia, pistas). | `for familia, pistas in FAMILIAS` recorre cada par. |
+| `endswith` | Pregunta si un texto termina de cierta forma. | `"mochila-2".endswith("-2")` da `True`. |
+| `join` | Une una lista de textos con un separador. | `", ".join(["cali", "colombia"])` da `cali, colombia`. |
+| Devolver una tupla | La función devuelve dos datos juntos: la decisión y el motivo. | `return 1, "regla: Colombia..."`. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `urllib.parse.urlparse` | Parte la dirección para sacar la ruta (ya vista). | `urlparse(url).path` da `/medellin-y-guatape/`. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Las reglas de la guía 1 (`PATRONES_UTILES`: `/blog/`, `/noticias/`, `/articulo/`) | En este sitio ninguna dirección tiene esas carpetas: lo descartarían todo. |
+| Buscar con `"cali" in slug` (texto dentro de texto) | Daría falsos aciertos: `cali` está dentro de `calidad` o `california`. Por eso se comparan palabras enteras. |
+| Expresiones regulares | Podrían hacer lo mismo, pero son más difíciles de leer para quien empieza; los conjuntos de palabras bastan. |
+| El buscador del sitio (opción H) o un agente (opción K) | Verían el contenido y no solo el nombre, pero no fueron las opciones elegidas. Sirven para medir lo que estas reglas se pierden. |
+
+
+## [Etapa 3 · Paso 8] 18. Marcar toda la base: `filtrar_colombia.py`
+
+> **Para qué:** Aplicar `clasificar` a las 292 direcciones guardadas, escribir cada decisión en la base y mostrar el resumen y los casos dudosos. No pide nada al sitio.
+
+**Si lo hiciera una persona:**
+
+| Una persona haría | El código hace |
+|---|---|
+| Sacar del cuaderno las fichas que no tengan una nota escrita a mano. | `SELECT ... WHERE motivo IS NULL OR motivo LIKE 'regla:%'`. |
+| Decidir cada ficha con las reglas. | `clasificar(url, mapa)` para cada una. |
+| Escribir al lado de cada ficha el «sí» o el «no» y el porqué. | `UPDATE urls SET vale_la_pena = ?, motivo = ?`. |
+| Contar cuántos «sí» y cuántos «no» quedaron. | `SELECT vale_la_pena, COUNT(*) ... GROUP BY 1`. |
+
+```
+con = abrir_base()
+filas = con.execute(
+    "SELECT url, mapa FROM urls WHERE sitio = ? "
+    "AND (motivo IS NULL OR motivo LIKE 'regla:%')", (SITIO,)
+).fetchall()
+
+marcas = [(*clasificar(url, mapa), url) for url, mapa in filas]
+con.executemany("UPDATE urls SET vale_la_pena = ?, motivo = ? WHERE url = ?", marcas)
+con.commit()
+
+for vale, cuantas in con.execute(
+        "SELECT vale_la_pena, COUNT(*) FROM urls GROUP BY 1"):
+    print(vale, cuantas)
+```
+
+Es una versión resumida; el script completo también imprime el resumen por motivo, la lista de las que valen la pena y los casos dudosos. Se ejecuta en la terminal: `.venv\Scripts\python.exe filtrar_colombia.py`. Tarda menos de un segundo.
+
+**Cómo funciona, paso a paso:**
+
+1. Abre la base y trae las direcciones del sitio que **no tienen marca manual**: o no tienen motivo, o su motivo empieza por `regla:`.
+2. Por cada una llama a `clasificar` y arma una fila `(vale_la_pena, motivo, url)`.
+3. Con `UPDATE` escribe la decisión en cada dirección, y `commit` la confirma.
+4. Cuenta y muestra los resultados agrupados por decisión y por motivo.
+
+| Dato | Lo que salió (10 de octubre de 2026) |
+|---|---|
+| Direcciones marcadas | 292 |
+| Sí | 8 |
+| No | 284 |
+| Peticiones al sitio | 0 |
+
+> **Un fallo de programación en el camino** La primera vez, el script se cayó al final, en la parte que muestra los casos dudosos: la portada (`/`) no tiene nombre de página y el código intentó leerlo igual. Las marcas ya estaban guardadas. Se corrigió con una comprobación: si no hay nombre, se usa un conjunto vacío.
+
+**Conceptos de programación que aparecen aquí:**
+
+| Concepto | Qué es, en simple | Ejemplo mínimo |
+|---|---|---|
+| `UPDATE ... SET ... WHERE` | La orden SQL para cambiar datos de filas que ya existen. | `UPDATE urls SET vale_la_pena = 1 WHERE url = ?`. |
+| `LIKE 'regla:%'` | Solo las filas cuyo motivo empieza por «regla:». | Protege las marcas hechas a mano. |
+| `IS NULL` | Pregunta si una celda está vacía (en SQL no se escribe `= NULL`). | `motivo IS NULL` son las direcciones nunca marcadas. |
+| Desempaquetar con `*` | Mete los elementos de una tupla dentro de otra. | `(*clasificar(url, mapa), url)` da `(1, "regla: ...", url)`. |
+| `GROUP BY 1` | Agrupa por la primera columna de la consulta. | Agrupa por `vale_la_pena` para contar los sí y los no. |
+
+**La librería, en simple:**
+
+| Herramienta | Qué hace | Ejemplo mínimo |
+|---|---|---|
+| `sqlite3`: `executemany` con `UPDATE` | Cambia muchas filas con una sola orden (ya vista con `INSERT`). | Escribió las 292 decisiones de una vez. |
+| `collections.Counter.most_common` | Ordena lo contado de más a menos. | En el script completo muestra primero los 196 de otro tema. |
+
+**Por qué este código y no otro:**
+
+| Alternativa | Por qué no |
+|---|---|
+| Marcar a mano en DB Browser for SQLite (opción J) | Sirve para corregir casos sueltos, pero no se puede repetir ni medir. Las reglas dejan el criterio escrito y repetible. |
+| Borrar las direcciones que no sirven | Se decidió marcar, no borrar (D12): así cada descarte queda revisable. |
+| Recalcular todas las marcas, incluidas las manuales | Pisaría las correcciones hechas a mano. Por eso solo se tocan las que empiezan por `regla:`. |
+
+> **En resumen** Estas dieciocho piezas son todo el código del ejercicio hasta el paso 8. Cada vez que se añada código nuevo, se explicará aquí con su etapa, su «Para qué», un ejemplo y la comparación con otras opciones.
 

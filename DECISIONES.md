@@ -95,3 +95,12 @@ Estados: **Aceptada** · **Rechazada** · **Aplazada** (con condición de activa
 - **Decisión:** se guardan las 292 direcciones en `datos/scraping.db`, tabla `urls`, y el filtrado del paso 8 las marca con `vale_la_pena` y `motivo` sin borrar nada. Las 16 guías por país (`/paises/…`) del mapa de páginas cuentan como material. El tema inicial del artículo es **Colombia**; el filtro por tema se apoya en el título y el contenido, no solo en la dirección.
 - **Motivo:** las direcciones no son contenido del blog, son el mapa; marcar se puede deshacer y borrar no; se evita volver a pedirle los mapas al sitio; y lo que importa es qué contenido se descarga, que solo será el de las páginas marcadas.
 - **Cambia la tabla `urls`:** se añaden las columnas `mapa`, `lastmod` y `motivo` a las que había previstas.
+
+## D13 · Filtro del paso 8: reglas fijas por el nombre de la dirección
+
+- **Fecha:** 10 oct 2026 · **Estado:** Aceptada
+- **Contexto:** se le presentaron al usuario once formas de filtrar (de la A a la K), con su costo y su fiabilidad.
+- **Decisión:** el usuario eligió **A + B + C + D**: mapa de origen, palabras de Colombia en la dirección, familia por el nombre y carpeta `/paises/`. Cuentan todos los lugares de Colombia (Medellín, Bogotá, Cartagena, Cali, Tayrona, Palomino, Taganga, Guatapé, Eje Cafetero, San Cipriano). **No** cuentan los vídeos. Solo información tipo blog. Las reglas marcan con motivo «regla: …» y no pisan marcas manuales.
+- **Motivo:** son gratis (0 peticiones), explicables y repetibles, y muestran el punto débil del modo manual, que luego se compara con el agente.
+- **Resultado:** 8 sí y 284 no.
+- **Aplazado:** buscador del sitio (H), títulos reales (F) o un agente (K), para medir los artículos de Colombia que las reglas no ven. Revisar si se quiere ampliar el material o medir las omisiones.

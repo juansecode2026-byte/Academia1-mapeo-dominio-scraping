@@ -9,7 +9,7 @@ Extraer información de https://www.viviendoporelmundo.com/ como base para escri
 
 **Tema inicial del artículo: Colombia.** Las guías por país (`/paises/…`) cuentan como material, igual que las entradas.
 
-**Estado actual:** viviendoporelmundo.com, etapa 3 (filtrado), paso 8 del informe manual: marcar las 292 URLs guardadas con `vale_la_pena` y `motivo`, empezando por Colombia. Etapas 0, 1 y 2 hechas. El detalle por etapa está en la ficha del sitio en `FUENTES.md`.
+**Estado actual:** viviendoporelmundo.com, etapa 4 (scraping), paso 9 del informe manual: inspeccionar el HTML de un artículo de Colombia. Etapas 0 a 3 hechas; el filtrado dejó 8 direcciones de Colombia con `vale_la_pena = 1`. El detalle por etapa está en la ficha del sitio en `FUENTES.md`.
 
 ## Documentación del proyecto
 
@@ -56,6 +56,7 @@ Academia Mapeo Dominio y Scraping/
 ├── probar_descarga.py        Descarga la portada y muestra la respuesta del sitio (paso 5)
 ├── probar_sitemap.py         Lee el índice del sitemap y sus dos mapas, y cuenta las direcciones (paso 6)
 ├── guardar_mapa.py           Lee el sitemap, guarda las direcciones en la base y comprueba lo guardado (paso 7)
+├── filtrar_colombia.py       Marca las direcciones con reglas fijas (vale_la_pena y motivo); no pide nada al sitio (paso 8)
 ├── .gitignore                Excluye .venv, .env, desktop.ini, __pycache__, datos y resultados
 ├── datos/                    scraping.db (292 URLs guardadas, tabla `urls`) — fuera de git
 ├── analisis-resultados-scraping-mapeo/

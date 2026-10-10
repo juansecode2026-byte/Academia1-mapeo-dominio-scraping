@@ -52,7 +52,10 @@ A nuestro bot le aplica el bloque `User-agent: *`.
 - **Verificado con código el 10 oct 2026 (`leer_sitemap`, 3 peticiones, 38 s):** `post-sitemap.xml` tiene **244** direcciones (coincide con el encabezado) y `page-sitemap.xml` **48**; total **292, todas distintas**. Fechas de modificación de 2015-10-26 a 2026-06-20. El índice se puede pedir directamente en `https://www.viviendoporelmundo.com/sitemap_index.xml`, sin redirección.
 - **Carpetas en las direcciones (verificado en la base, 10 oct 2026):** las 244 entradas cuelgan de la raíz, sin carpeta. De las 48 páginas, 30 están en la raíz, **16 en `/paises/`** (guías de costos por país, que cuentan como material) y 2 en `/quien-es-viviendo-por-el-mundo/`. Las reglas por defecto de la guía 1 (`PATRONES_UTILES`: `/blog/`, `/noticias/`, `/articulo/`) no coinciden con ninguna de las direcciones vistas; el filtrado tendrá que usar otras pistas.
 - **Guardadas las 292 direcciones en `datos/scraping.db`** (tabla `urls`, todas con `vale_la_pena` vacío). Decisión: se guardan todas y se marcan, no se borra nada.
-- **Tema inicial: Colombia.** Vistazo previo, solo por palabras en la dirección (no es un filtro): 9 direcciones, 8 entradas y `/paises/guia-colombia-cuanto-cuesta-viajar/`. Pueden faltar artículos que hablen de Colombia sin nombrarla en la dirección.
+- **Tema inicial: Colombia.** Filtro del paso 8 (reglas por el nombre de la dirección): 8 marcadas como útiles, `/paises/guia-colombia-cuanto-cuesta-viajar/` y 7 entradas (Bogotá, Eje Cafetero, Cali y San Cipriano, Cartagena, Medellín y Guatapé, Taganga, Tayrona y Palomino). El vídeo de Colombia queda fuera. Pueden faltar artículos que hablen de Colombia sin nombrarla en la dirección.
+- **Estructura de un artículo (vista en DevTools el 10 oct 2026, en `/medellin-y-guatape/`):** `main.content` > `article` > `header.entry-header` > `h1.entry-title` (el título) y `p.entry-meta` (firma y fecha, por abrir); el cuerpo está en `div.entry-content`, que incluye un bloque de botones de compartir (`addtoany…`) que no es texto del artículo.
+- **La etiqueta `article` declara sus categorías en la clase** (`category-america`, `category-colombia`, `tag-cronicas-de-viaje`): señal de tema más fiable que el nombre de la dirección. El título no coincide con el nombre de la dirección.
+- **Las reglas por el nombre se equivocan aquí:** `-2` no siempre es un duplicado (hay series `…-1-de-2`, `…-2-de-2`), y palabras como «seguro» no siempre indican venta.
 - **`Last Mod.` no es la fecha de publicación:** hay bloques con la misma fecha de edición (más de 50 entradas del 21 al 26 de julio de 2021; 9 del 20 de junio de 2026).
 - **Familias de contenido por el nombre:** guías de lugares, vídeos, podcasts y entrevistas, contenido comercial o de afiliación (seguros, hosting, cursos) y posibles duplicados que terminan en `-2`.
 - **`descargar()` de la guía 1 espera 2 s por defecto:** en este sitio es poco; usar `espera_del_sitio()`.
@@ -64,6 +67,6 @@ A nuestro bot le aplica el bloque `User-agent: *`.
 |---|---|
 | 1. Permisos (robots.txt y términos) | Hecho (9 oct 2026): robots.txt verificado y leído con código; términos revisados |
 | 2. Mapeo (sitemap) | Hecho (10 oct 2026): sitemap leído con código y 292 direcciones guardadas en SQLite (pasos 4 a 7) |
-| 3. Filtrado | Siguiente (paso 8): marcar las 292 con `vale_la_pena` y `motivo`, empezando por Colombia |
-| 4. Scraping (extracción) | Pendiente |
+| 3. Filtrado | Hecho (10 oct 2026): reglas fijas A+B+C+D con `filtrar_colombia.py`; **8 sí** (la guía por país de Colombia y 7 entradas) y 284 no, cada una con su motivo |
+| 4. Scraping (extracción) | Siguiente (paso 9): inspeccionar el HTML de un artículo de Colombia |
 | 5. Archivo, reescritura y cita | Pendiente |

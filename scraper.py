@@ -1,7 +1,11 @@
 """Funciones del scraper manual (guía 1). Se va completando paso a paso."""
 
+import sqlite3
 import time
+import xml.etree.ElementTree as ET
+from datetime import date
 from functools import lru_cache
+from pathlib import Path
 from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
 
@@ -49,7 +53,12 @@ def _robots(base: str) -> RobotFileParser:
 def puede_visitar(url: str) -> bool:
     """True si el robots.txt del sitio permite a nuestro bot visitar esa URL."""
     p = urlparse(url)
-    return _robots(f"{p.scheme}://{p.netloc}").can_fetch(USER_AGENT, url)
+    try:
+        robots = _robots(f"{p.scheme}://{p.netloc}")
+    except requests.RequestException as e:
+        print(f"No se pudo leer el robots.txt de {p.netloc}: {e}")
+        return False                        # sin poder comprobar el permiso, no se entra
+    return robots.can_fetch(USER_AGENT, url)
 
 
 def espera_del_sitio(url: str, por_defecto: float = 2.0) -> float:
@@ -90,3 +99,87 @@ def descargar(url: str, espera: float | None = None, solo_html: bool = True) -> 
     if r.encoding in (None, "ISO-8859-1"):
         r.encoding = r.apparent_encoding    # arregla tildes y eñes mal leídas
     return r.text
+
+
+NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+
+
+def leer_sitemap(sitemap_url: str) -> tuple[list[dict], list[dict]]:
+    """Lee un archivo de sitemap y devuelve (mapas, paginas).
+
+    Si es un índice, `mapas` trae los mapas hijos y `paginas` va vacía; si es un mapa
+    de páginas, pasa al revés. Cada elemento lleva su dirección (`url`), su fecha de
+    última modificación (`lastmod`) y el mapa del que salió (`mapa`).
+    """
+    contenido = descargar(sitemap_url, solo_html=False)
+    if not contenido:
+        return [], []
+    raiz = ET.fromstring(contenido.encode("utf-8"))
+
+    def leer(etiqueta: str) -> list[dict]:
+        return [
+            {
+                "url": e.findtext("sm:loc", "", NS).strip(),
+                "lastmod": e.findtext("sm:lastmod", "", NS).strip(),
+                "mapa": sitemap_url,
+            }
+            for e in raiz.findall(f"sm:{etiqueta}", NS)
+        ]
+
+    return leer("sitemap"), leer("url")
+
+
+def urls_desde_sitemap(sitemap_url: str, limite: int = 500) -> list[dict]:
+    """Recorre un sitemap (con sus mapas hijos, si es un índice) y devuelve las páginas.
+
+    `limite` es el tope de páginas: protege contra sitios con miles de direcciones.
+    """
+    mapas, paginas = leer_sitemap(sitemap_url)
+    for mapa in mapas:
+        if len(paginas) >= limite:
+            break
+        paginas += urls_desde_sitemap(mapa["url"], limite - len(paginas))
+    return paginas[:limite]
+
+
+RUTA_BASE = Path(__file__).parent / "datos" / "scraping.db"
+
+
+def abrir_base() -> sqlite3.Connection:
+    """Abre la base de datos local del proyecto; si no existe, la crea con su tabla `urls`."""
+    RUTA_BASE.parent.mkdir(exist_ok=True)
+    con = sqlite3.connect(RUTA_BASE)
+    con.execute(
+        """
+        CREATE TABLE IF NOT EXISTS urls (
+            url          TEXT PRIMARY KEY,
+            sitio        TEXT NOT NULL,
+            origen       TEXT NOT NULL,
+            mapa         TEXT,
+            lastmod      TEXT,
+            vale_la_pena INTEGER,
+            motivo       TEXT,
+            fecha_mapeo  TEXT NOT NULL
+        )
+        """
+    )
+    return con
+
+
+def guardar_urls(con: sqlite3.Connection, paginas: list[dict], sitio: str, origen: str = "sitemap") -> int:
+    """Guarda las direcciones sin duplicarlas. Si ya existían, actualiza su mapa y su fecha,
+    pero no toca `vale_la_pena` ni `motivo`, que se rellenan en el paso del filtrado."""
+    hoy = date.today().isoformat()
+    con.executemany(
+        """
+        INSERT INTO urls (url, sitio, origen, mapa, lastmod, fecha_mapeo)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(url) DO UPDATE SET
+            mapa = excluded.mapa,
+            lastmod = excluded.lastmod,
+            fecha_mapeo = excluded.fecha_mapeo
+        """,
+        [(p["url"], sitio, origen, p["mapa"], p["lastmod"], hoy) for p in paginas],
+    )
+    con.commit()
+    return len(paginas)

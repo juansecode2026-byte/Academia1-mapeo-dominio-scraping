@@ -48,6 +48,7 @@ A nuestro bot le aplica el bloque `User-agent: *`.
 - **Es WordPress** (confirmado el 9 oct 2026): el sitemap lo genera el plugin Yoast SEO.
 - **El `sitemap_index.xml` solo tiene 2 mapas hijos:** `post-sitemap.xml` (entradas) y `page-sitemap.xml` (páginas), en `https://www.…`, ambos con última modificación el 2026-06-20. No hay mapa de categorías ni de etiquetas: el sitemap no es el plano completo del sitio, hay que compararlo con lo que se descubre siguiendo enlaces.
 - **El índice se anuncia en `http://` sin `www` pero los hijos están en `https://www`:** hay una redirección que el código debe seguir.
+- **Pedir `http://viviendoporelmundo.com/` provoca un 301 a `https://www.viviendoporelmundo.com/`** (verificado el 9 oct 2026): una página son dos peticiones y el código las hace seguidas. Pedir ya la dirección final, `https://www…`. La portada responde 200, `text/html; charset=UTF-8`, unos 240 KB de HTML y 1,86 s.
 - **`post-sitemap.xml` tiene 244 URLs** (según su encabezado, 9 oct 2026; se recontarán con código), de 2015-10-26 a 2026-06-20, ordenadas por fecha de modificación, con una columna de número de imágenes. `page-sitemap.xml`: sin contar todavía.
 - **Ninguna URL tiene carpeta** (`/blog/`, `/pais/`): todas cuelgan de la raíz. Las reglas por defecto de la guía 1 (`PATRONES_UTILES`) descartarían todas; el filtrado tendrá que usar otras pistas (el nombre de la página).
 - **`Last Mod.` no es la fecha de publicación:** hay bloques con la misma fecha de edición (más de 50 entradas del 21 al 26 de julio de 2021; 9 del 20 de junio de 2026).
@@ -60,7 +61,7 @@ A nuestro bot le aplica el bloque `User-agent: *`.
 | Etapa | Estado |
 |---|---|
 | 1. Permisos (robots.txt y términos) | Hecho (9 oct 2026): robots.txt verificado y leído con código; términos revisados |
-| 2. Mapeo (sitemap) | En curso: índice y `post-sitemap.xml` vistos en el navegador (paso 4); sigue la descarga con código (paso 5) |
+| 2. Mapeo (sitemap) | En curso: índice y `post-sitemap.xml` vistos en el navegador (paso 4) y portada descargada con código (paso 5); sigue la lectura de los mapas hijos con código (paso 6) |
 | 3. Filtrado | Pendiente |
 | 4. Scraping (extracción) | Pendiente |
 | 5. Archivo, reescritura y cita | Pendiente |
